@@ -1,0 +1,160 @@
+@@ -0,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Buddy - Settings</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .profile-info {
+            margin-top: 1rem;
+        }
+
+        .profile-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-info span {
+            font-weight: bold;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+
+        .cta-button:hover {
+            background-color: #0056b3;
+        }
+
+        .password form {
+            margin-top: 2rem;
+        }
+
+        .password label {
+            font-size: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        .password input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .password button {
+            display: block;
+            margin-top: 1rem;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .password button:hover {
+            background-color: #0056b3;
+        }
+        
+        
+
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: #333;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="budgetsindex.html">Budgets</a></li>
+                <li><a href="transactionindex.html">Transactions</a></li>
+                <li><a href="reportindex.html">Reports</a></li>
+                <li><a href="settingsindex.html">Settings</a></li>
+            </ul>
+        </nav>
+        <h1>Budget Buddy</h1>
+    </header>
+
+    <main>
+        <section class="profile">
+            <h2>Your Profile</h2>
+            <div class="profile-info">
+                <h3>Username: <span>JohnDoe</span></h3>
+                <h3>Email: <span>johndoe@example.com</span></h3>
+                <h3>Name: <span>John Doe</span></h3>
+            </div>
+            <a href="#" class="cta-button">Edit Profile</a>
+        </section>
+
+        <section class="password">
+            <h2>Change Password</h2>
+            <form action="#" method="post">
+                <label for="current-password">Current Password</label>
+                <input type="password" id="current-password" name="current-password" required>
+
+                <label for="new-password">New Password</label>
+                <input type="password" id="new-password" name="new-password" required>
+
+                <label for="confirm-password">Confirm New Password</label>
+                <input type="password" id="confirm-password" name="confirm-password" required>
+
+                <button type="submit" class="cta-button">Change Password</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Budget Buddy. All rights reserved.</p>
+    </footer>
+</body>
+</html>
