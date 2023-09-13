@@ -1,1 +1,2 @@
-# BudgetBuddy
+# BudgetBuddy.github.io
+BudgetBuddy
