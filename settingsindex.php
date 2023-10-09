@@ -115,11 +115,11 @@
     <header>
         <nav>
             <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="budgetsindex.html">Budgets</a></li>
-                <li><a href="transactionindex.html">Transactions</a></li>
-                <li><a href="reportindex.html">Reports</a></li>
-                <li><a href="settingsindex.html">Settings</a></li>
+                <li><a href="index.php">Home</a></li>
+                <li><a href="budgetsindex.php">Budgets</a></li>
+                <li><a href="transactionindex.php">Transactions</a></li>
+                <li><a href="reportindex.php">Reports</a></li>
+                <li><a href="settingsindex.php">Settings</a></li>
             </ul>
         </nav>
         <h1>Budget Buddy</h1>

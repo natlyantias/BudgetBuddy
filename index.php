@@ -11,9 +11,9 @@
     <header>
         <nav>
             <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="aboutusindex.html">About Us</a></li>
-                <li><a href="loginindex.html">Login</a></li>
+                <li><a href="index.php">Home</a></li>
+                <li><a href="aboutusindex.php">About Us</a></li>
+                <li><a href="loginindex.php">Login</a></li>
 
             </ul>
         </nav>
@@ -24,7 +24,7 @@
         <section class="hero">
             <h2>Take Control of Your Finances</h2>
             <p>Manage your money, track your spending, and achieve your financial goals with Budget Buddy.</p>
-            <a href="createaccountindex.html" class="cta-button">Get Started</a>
+            <a href="createaccountindex.php" class="cta-button">Get Started</a>
         </section>
 
         <section class="features">

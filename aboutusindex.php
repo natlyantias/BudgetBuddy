@@ -58,9 +58,9 @@
     <header>
         <nav>
             <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="aboutusindex.html">About Us</a></li>
-                <li><a href="loginindex.html">Login</a></li>
+                <li><a href="index.php">Home</a></li>
+                <li><a href="aboutusindex.php">About Us</a></li>
+                <li><a href="loginindex.php">Login</a></li>
 
             </ul>
         </nav>
