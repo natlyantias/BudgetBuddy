@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -100,12 +100,13 @@
         }
     </style>
 </head>
+
 <body>
     <header>
         <nav>
             <ul>
                 <li><a href="index.php">Home</a></li>
-             
+
             </ul>
         </nav>
         <h1>Budget Buddy</h1>
@@ -114,7 +115,7 @@
     <main>
         <section class="create-account">
             <h2>Create Your Budget Buddy Account</h2>
-            <form action="script.php" method="post">
+            <form action="register_script.php" method="post">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required>
 
@@ -127,8 +128,7 @@
                 <label for="confirm-password">Confirm Password</label>
                 <input type="password" id="confirm-password" name="confirm-password" required>
 
-                <!-- <a href="script.php" class="cta-button">Get Started</a> -->
-				<button class="cta-button" type="submit">Get Started</button>
+                <button class="cta-button" type="submit">Get Started</button>
             </form>
             <p>Already have an account? <a href="loginindex.php">Log In</a></p>
         </section>
@@ -138,4 +138,5 @@
         <p>&copy; 2023 Budget Buddy. All rights reserved.</p>
     </footer>
 </body>
+
 </html>

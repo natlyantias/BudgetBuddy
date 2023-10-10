@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -100,22 +100,42 @@
         }
     </style>
 </head>
+
 <body>
-        <header>
-            <nav>
-                <ul>
-                    <li><a href="index.php">Home</a></li>
-                 
-                </ul>
-            </nav>
-            <h1>Budget Buddy</h1>
-        </header>
-    
+    <script>
+        // Get the current URL without parameters
+        var cleanURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
+
+        // Use replaceState to update the URL without parameters
+        history.replaceState({}, document.title, cleanURL);
+    </script>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.php">Home</a></li>
+
+            </ul>
+        </nav>
+        <h1>Budget Buddy</h1>
+    </header>
+
 
     <main>
         <section class="login-form">
             <h2>Login to Your Budget Buddy Account</h2>
-            <form action="#" method="post">
+            <div class="message">
+                <?php
+                if (isset($_GET['status'])) {
+                    $error = $_GET['status'];
+                    if ($error === 'unauthorized') {
+                        echo "Invalid username or password";
+                    } else {
+                        echo "ERROR: " . $error;
+                    }
+                }
+                ?>
+            </div>
+            <form action="login_script.php" method="post">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required>
 
@@ -132,4 +152,5 @@
         <p>&copy; 2023 Budget Buddy. All rights reserved.</p>
     </footer>
 </body>
+
 </html>
