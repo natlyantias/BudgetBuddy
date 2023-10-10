@@ -114,7 +114,7 @@
     <main>
         <section class="create-account">
             <h2>Create Your Budget Buddy Account</h2>
-            <form action="#" method="post">
+            <form action="script.php" method="post">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required>
 
@@ -127,7 +127,8 @@
                 <label for="confirm-password">Confirm Password</label>
                 <input type="password" id="confirm-password" name="confirm-password" required>
 
-                <a href="budgetsindex.php" class="cta-button">Get Started</a>
+                <!-- <a href="script.php" class="cta-button">Get Started</a> -->
+				<button class="cta-button" type="submit">Get Started</button>
             </form>
             <p>Already have an account? <a href="loginindex.php">Log In</a></p>
         </section>

@@ -6,13 +6,14 @@
 </head>
 
 <body>
+<!--#echo var="DATE_LOCAL" -->
     <p>Begin SQL query</p>
     <br>
     <!-- begin php code (this comment should be obfuscated in a real production environment) -->
     <?php
     $servername = "localhost"; // Change to your MySQL server address if necessary
-    $username = "prod"; // Your MySQL username
-    $password = "OaklandF23"; // Your MySQL password
+    $username = "root"; // Your MySQL username
+    $password = ""; // Your MySQL password
     $dbname = "test"; // Your MySQL database name
 
     // Create a connection
