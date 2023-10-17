@@ -1,10 +1,12 @@
+// entry file for application
+
 const http = require('http')
 const fs = require('fs')
 const port = 3000
 
 const server = http.createServer(function (req, res) {
     res.writeHead(200, { 'Content-Type': 'text/html' })
-    fs.readFile('pages/index.php', function (error, data) {
+    fs.readFile('views/index.html', function (error, data) {
         if (error) {
             res.writeHead(404)
             res.write('Error: File Not Found')
