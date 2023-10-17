@@ -17,11 +17,8 @@ if exist package-lock.json (
     npm install
 )
 
-echo Packages installed successfully.
-
 endlocal
 
-echo Press any key to continue...
 
 :: Prompt user to press any key before closing
 pause
