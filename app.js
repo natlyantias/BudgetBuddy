@@ -1,27 +1,35 @@
+/*
+----------app.js
+----------entry file for application
+*/
+
 // imports
-const express = require('express');
-const path = require('path');
+const express = require("express");
+const path = require("path");
+//use express.js
 const app = express();
 
+// define listen port
 const port = 3000;
 
+// other folders
+
 // serve /public folder
-
-app.use(express.static('public'));
-
-// Set the path for the 'views' directory
-app.set('views', path.join(__dirname, 'views'));
+app.use(express.static("public"));
 
 //routes
 
+// Set the path for the 'views' directory
+app.set("views", path.join(__dirname, "views"));
+
 // Serve the index.html from the 'views' directory
-app.get('/', (req, res) => {
-    res.sendFile('index.html', { root: app.get('views') });
+app.get("/", (req, res) => {
+  res.sendFile("index.html", { root: app.get("views") });
 });
 
 // Serve the aboutusindex.html from the 'views' directory
-app.get('/aboutusindex.html', (req, res) => {
-    res.sendFile('aboutusindex.html', { root: app.get('views') });
+app.get("/aboutusindex.html", (req, res) => {
+  res.sendFile("aboutusindex.html", { root: app.get("views") });
 });
 
 app.get('/index.html', (req, res) => {
@@ -63,11 +71,10 @@ app.get('/transactionindex.html', (req, res) => {
 });
 
 // error handling
-
 app.listen(port, (error) => {
-    if (error) {
-        console.log('Something went wrong', error);
-    } else {
-        console.log('Server is listening on port ' + port);
-    }
+  if (error) {
+    console.log("Something went wrong", error);
+  } else {
+    console.log("Server is listening on port " + port);
+  }
 });
