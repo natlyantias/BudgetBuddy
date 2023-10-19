@@ -1,26 +1,35 @@
-// entry file for application
+// imports
+const express = require('express');
+const path = require('path');
+const app = express();
 
-const http = require('http')
-const fs = require('fs')
-const port = 3000
+const port = 3000;
 
-const server = http.createServer(function (req, res) {
-    res.writeHead(200, { 'Content-Type': 'text/html' })
-    fs.readFile('views/index.html', function (error, data) {
-        if (error) {
-            res.writeHead(404)
-            res.write('Error: File Not Found')
-        } else {
-            res.write(data)
-        }
-        res.end()
-    })
-})
+// serve /public folder
 
-    server.listen(port, function (error) {
-        if (error) {
-            console.log('Something went wrong', error)
-        } else {
-            console.log('Server is listening on port ' + port)
-        }
-    })
+app.use(express.static('public'));
+
+// Set the path for the 'views' directory
+app.set('views', path.join(__dirname, 'views'));
+
+//routes
+
+// Serve the index.html from the 'views' directory
+app.get('/', (req, res) => {
+    res.sendFile('index.html', { root: app.get('views') });
+});
+
+// Serve the aboutusindex.html from the 'views' directory
+app.get('/aboutusindex.html', (req, res) => {
+    res.sendFile('aboutusindex.html', { root: app.get('views') });
+});
+
+// error handling
+
+app.listen(port, (error) => {
+    if (error) {
+        console.log('Something went wrong', error);
+    } else {
+        console.log('Server is listening on port ' + port);
+    }
+});
