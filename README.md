@@ -1,7 +1,7 @@
 # BudgetBuddy.github.io
 BudgetBuddy
 
-Requries Node.js v18.18.2 LTS. https://nodejs.org/dist/v18.18.2/node-v18.18.2-x64.msi
+Requries the latest version of Node.js. https://nodejs.org/en/download/current
 
 BudgetBuddy requires a connection string from a running MongoDB cloud instance.
 Because this string supplies a password, it should be stored as an environment variable for better security.
