@@ -1,4 +1,3 @@
--Fix CSS not displaying on web page
 -Replace existing PHP features with equivalent available on node.js
     * User account registration
     * User account login
