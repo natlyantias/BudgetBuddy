@@ -10,6 +10,10 @@ const path = require("path");
 const express = require("express");
 const app = express();
 
+// Middleware to parse JSON and urlencoded data
+app.use(express.json());
+app.use(express.urlencoded({ extended: true}));
+
 //import routes.js
 require("./routes")(app);
 
