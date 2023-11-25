@@ -9,9 +9,13 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const session = require("express-session");
-const { Configuration, PlaidApi, PlaidEnvironments } = require("plaid");
 const path = require("path");
+const { Configuration, PlaidApi, PlaidEnvironments } = require("plaid");
+// initalize express.js
 const app = express();
+
+//import routes.js
+require("./routes")(app);
 
 
 app.use(
@@ -22,8 +26,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
 
-//import routes.js
-require("./routes")(app);
+
 
 // serve /public folder
 app.use(express.static("public"));
