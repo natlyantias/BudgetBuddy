@@ -28,6 +28,9 @@ const db = require('./db');
 // initialize express.js
 const app = express();
 
+// initialize templating engine
+app.set('view engine', 'ejs');
+
 
 // ---------- DEFINE MIDDLEWARE
 
@@ -42,14 +45,14 @@ app.use(express.urlencoded({ extended: true}));
 require("./routes")(app);
 
 
-// ---------- PLAID API
-
-const { Configuration, PlaidApi, PlaidEnvironments } = require("plaid");
-
-//plaid middleware
+//session middleware
 app.use(
   session({ secret: "bosco", saveUninitialized: true, resave: true })
 );
+
+// ---------- PLAID API
+
+const { Configuration, PlaidApi, PlaidEnvironments } = require("plaid");
 
 // Configuration for the Plaid client
 const config = new Configuration({
@@ -109,7 +112,7 @@ app.get("/api/data", async (req, res, next) => {
 // in index.html when redirected from oauth.html
 app.get("/api/is_account_connected", async (req, res, next) => {
   console.log("GET Route called: /api/is_account_connected");
-  console.log(req.session.access_token);
+  // console.log(req.session.access_token);
   return (req.session.access_token ? res.json({ status: true }) : res.json({ status: false}));
 });
 

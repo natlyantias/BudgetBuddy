@@ -2,6 +2,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+    <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+    <script src="/js/link.js"></script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Budget Buddy - Settings</title>
@@ -134,6 +139,29 @@
                 <h3>Name: <span>John Doe</span></h3>
             </div>
             <a href="#" class="cta-button">Edit Profile</a>
+        </section>
+
+        <section class="plaid-connect">
+            <h3>Connect to Plaid</h3>
+            <button
+    type="button"
+    id="link-account"
+    class="btn btn-primary btn-dark btn-lg"
+    style="
+      border: 1px solid black;
+      border-radius: 5px;
+      background: black;
+      height: 48px;
+      width: 155px;
+      margin-top: 5px; 
+      margin-left: 10;
+      color: white;
+      font-size: 18px;
+    "
+  >
+    <strong>Link account</strong>
+</button>
+
         </section>
 
         <section class="password">

@@ -41,7 +41,7 @@ module.exports = function (app) {
         res.sendFile("reportindex.html", { root: page_dir });
     });
 
-    app.get("/settingsindex.html", (req, res) => {
+    app.get("/settings", (req, res) => {
         res.sendFile("settingsindex.html", { root: page_dir });
     });
 
