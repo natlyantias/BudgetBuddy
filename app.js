@@ -70,6 +70,7 @@ const client = new PlaidApi(config);
 
 //Creates a Link token and return it
 app.get("/api/create_link_token", async (req, res, next) => {
+  console.log("GET Route called: /api/create_link")
   const tokenResponse = await client.linkTokenCreate({
     user: { client_user_id: req.sessionID },
     client_name: "Plaid's Tiny Quickstart",
@@ -83,6 +84,7 @@ app.get("/api/create_link_token", async (req, res, next) => {
 
 // Exchanges the public token from Plaid Link for an access token
 app.post("/api/exchange_public_token", async (req, res, next) => {
+  console.log("POST Route called: /api/exchange_public_token");
   const exchangeResponse = await client.itemPublicTokenExchange({
     public_token: req.body.public_token,
   });
@@ -95,6 +97,7 @@ app.post("/api/exchange_public_token", async (req, res, next) => {
 
 // Fetches balance data using the Node client library for Plaid
 app.get("/api/data", async (req, res, next) => {
+  console.log("GET Route called: /api/data");
   const access_token = req.session.access_token;
   const balanceResponse = await client.accountsBalanceGet({ access_token });
   res.json({
@@ -105,6 +108,8 @@ app.get("/api/data", async (req, res, next) => {
 // Checks whether the user's account is connected, called
 // in index.html when redirected from oauth.html
 app.get("/api/is_account_connected", async (req, res, next) => {
+  console.log("GET Route called: /api/is_account_connected");
+  console.log(req.session.access_token);
   return (req.session.access_token ? res.json({ status: true }) : res.json({ status: false}));
 });
 

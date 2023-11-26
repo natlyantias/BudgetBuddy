@@ -8,11 +8,16 @@
 // required packages for mysql connectivity
 const mysql = require("mysql2");
 
+// WARNING: this is not a static ip
+const hostname = "34.130.255.99"
+
 // construct a connection to mysql database
+// a real production environment would not store the password in plaintext
 const db = mysql.createConnection({
-  host: "172.28.95.165",
+  host: hostname,
+  port: 3306,
   user: "buddy",
-  password: "OaklandF23!",
+  password: "OaklandF23!", // it is better to use an environment variable to store the password
   database: "prod",
 });
 
