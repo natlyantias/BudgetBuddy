@@ -4,32 +4,52 @@
 ----------
 */
 
-// imports
+
+// define listen port for the node.js server
+const port = 80;
+
+// ---------- IMPORTS
+
+// utilize environment variables
 require("dotenv").config();
+// import packages
+// const bodyParser = require("body-parser");
 const express = require("express");
-const bodyParser = require("body-parser");
 const session = require("express-session");
+const cookieParser = require("cookie-parser");
+const MySQLStore = require("express-mysql-session")(session);
+const mysql = require("mysql2");
+const bcrypt = require("bcrypt");
 const path = require("path");
-const { Configuration, PlaidApi, PlaidEnvironments } = require("plaid");
-// initalize express.js
+//import other scripts in the same directory
+const db = require('./db');
+
+
+// initialize express.js
 const app = express();
 
-//import routes.js
-require("./routes")(app);
 
+// ---------- DEFINE MIDDLEWARE
 
-app.use(
-  session({ secret: "bosco", saveUninitialized: true, resave: true })
-);
+// serve /public folder (css files mostly)
+app.use(express.static("public"));
 
-// Middleware to parse JSON and urlencoded data
+// parse JSON and urlencoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
 
+//importing routes must be located after URL parsing
+require("./routes")(app);
 
 
-// serve /public folder
-app.use(express.static("public"));
+// ---------- PLAID API
+
+const { Configuration, PlaidApi, PlaidEnvironments } = require("plaid");
+
+//plaid middleware
+app.use(
+  session({ secret: "bosco", saveUninitialized: true, resave: true })
+);
 
 // Configuration for the Plaid client
 const config = new Configuration({
@@ -45,6 +65,8 @@ const config = new Configuration({
 
 //Instantiate the Plaid client with the configuration
 const client = new PlaidApi(config);
+
+// ----- Plaid routes
 
 //Creates a Link token and return it
 app.get("/api/create_link_token", async (req, res, next) => {
@@ -87,13 +109,7 @@ app.get("/api/is_account_connected", async (req, res, next) => {
 });
 
 
-
-
-
-
-// define listen port
-const port = 80;
-// start the server and catch any errors that happen in the process
+// ---------- INITIALIZE WEB SERVER
 app.listen(port, (error) => {
   if (error) {
     console.log("Something went wrong ", error);

@@ -11,7 +11,7 @@ module.exports = function (app) {
 
     const page_dir = app.get("views");
 
-    //handle GETs
+    // ---------- handle GETs
 
     app.get("/", function (req, res) {
         res.sendFile("index.html", { root: page_dir });
@@ -49,15 +49,22 @@ module.exports = function (app) {
         res.sendFile("transactionindex.html", { root: page_dir });
     });
 
-    //handle POSTs
+
+    // ---------- handle POSTs
 
     app.post("/login_request", (req, res) => {
+        //for testing purposes
+        console.log(req.body);
+
         const username = req.body.username;
         const password = req.body.password;
 
+        //for testing purposes
         const htmlDis = `<h1>Username:</h1><br></br><h2>${username}</h2><br></br><h1>Password:</h1><br></br><h2>${password}</h2>`;
 
         res.setHeader('Content-Type', 'text/html');
         res.send(htmlDis);
     });
+
+    
 };
