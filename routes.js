@@ -31,6 +31,11 @@ module.exports = function (app) {
         res.send(htmlDis);
     });
 
+    app.post("/register_account", (req, res) => {
+
+
+    });
+
 
     // ---------- handle GETs
 

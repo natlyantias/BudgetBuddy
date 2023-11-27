@@ -17,7 +17,7 @@ require("dotenv").config();
 // const bodyParser = require("body-parser");
 const express = require("express");
 const session = require("express-session");
-const cookieParser = require("cookie-parser");
+// const cookieParser = require("cookie-parser");
 const MySQLStore = require("express-mysql-session")(session);
 const mysql = require("mysql2");
 const bcrypt = require("bcrypt");
