@@ -5,11 +5,32 @@
 ----------CREDIT: https://www.hacksparrow.com/webdev/express/handling-processing-forms.html
 */
 
+//import other scripts in the same directory
+const db = require('./db');
+
 
 // enable routes.js to be used in app.js
 module.exports = function (app) {
 
     const page_dir = app.get("views");
+
+
+    // ---------- handle POSTs
+
+    app.post("/login_request", (req, res) => {
+        //for testing purposes
+        console.log(req.body);
+
+        const username = req.body.username;
+        const password = req.body.password;
+
+        //for testing purposes
+        const htmlDis = `<h1>Username:</h1><br></br><h2>${username}</h2><br></br><h1>Password:</h1><br></br><h2>${password}</h2>`;
+
+        res.setHeader('Content-Type', 'text/html');
+        res.send(htmlDis);
+    });
+
 
     // ---------- handle GETs
 
@@ -50,23 +71,5 @@ module.exports = function (app) {
     app.get("/transactionindex", (req, res) => {
         res.render("transactionindex.ejs", { root: page_dir });
     });
-
-
-    // ---------- handle POSTs
-
-    app.post("/login_request", (req, res) => {
-        //for testing purposes
-        console.log(req.body);
-
-        const username = req.body.username;
-        const password = req.body.password;
-
-        //for testing purposes
-        const htmlDis = `<h1>Username:</h1><br></br><h2>${username}</h2><br></br><h1>Password:</h1><br></br><h2>${password}</h2>`;
-
-        res.setHeader('Content-Type', 'text/html');
-        res.send(htmlDis);
-    });
-
     
 };

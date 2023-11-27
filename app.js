@@ -44,11 +44,15 @@ app.use(express.urlencoded({ extended: true}));
 //importing routes must be located after URL parsing
 require("./routes")(app);
 
-
 //session middleware
 app.use(
-  session({ secret: "bosco", saveUninitialized: true, resave: true })
-);
+  session({
+    secret: "bosco",
+    saveUninitialized: true,
+    resave: true,
+    cookie: { secure: false }
+  }));
+
 
 // ---------- PLAID API
 
