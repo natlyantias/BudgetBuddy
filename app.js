@@ -16,9 +16,9 @@ require("dotenv").config();
 // import packages
 // const bodyParser = require("body-parser");
 const express = require("express");
-const session = require("express-session");
+// const session = require("express-session");
 // const cookieParser = require("cookie-parser");
-const MySQLStore = require("express-mysql-session")(session);
+// const MySQLStore = require("express-mysql-session")(session);
 const mysql = require("mysql2");
 const bcrypt = require("bcrypt");
 const path = require("path");
@@ -32,6 +32,9 @@ const app = express();
 // initialize templating engine
 app.set('view engine', 'ejs');
 
+// import initialization of express-session
+const sessionMiddleware = require("./session");
+
 
 // ---------- DEFINE MIDDLEWARE
 
@@ -43,21 +46,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
 
 //importing routes must be located after URL parsing
-require("./routes")(app);
+const routes = require("./routes");
 
 // express-session middleware
-app.use(
-  session({
-    secret: "bosco",
-    saveUninitialized: true,
-    resave: true,
-    cookie: { secure: false }
-  }));
+app.use(sessionMiddleware);
 
+//
+app.use(routes);
 
 // ---------- PLAID API
 
 const { Configuration, PlaidApi, PlaidEnvironments } = require("plaid");
+
 
 // Configuration for the Plaid client
 const config = new Configuration({

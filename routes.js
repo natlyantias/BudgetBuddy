@@ -10,47 +10,69 @@ const bcrypt = require("bcrypt");
 //import other scripts in the same directory
 const db = require('./db');
 
+const path = require("path");
+const express = require("express");
+// const session = require("express-session");
+const sessionMiddleware = require("./session");
+
+const router = express.Router();
 
 // enable routes.js to be used in app.js
-module.exports = function (app) {
+// module.exports = function (app) {
+  
 
-    const page_dir = app.get("views");
+    // const page_dir = app.get("views");
+    const page_dir = path.join(__dirname, 'views');
 
     // ---------- handle POSTs
 
-    app.post('/login_request', async (req, res) => {
+    router.post('/login_request', async (req, res) => {
         const { username, password } = req.body;
 
-        const hashed_password = db.query('SELECT password_hash FROM users WHERE username = ?', [username], (err, results) => {
-          if (results.length > 0) {
-            
-            const hash_from_db = results[0].password_hash;
+        console.log(req.body);
 
-            bcrypt.compare(password, hash_from_db, (err, result) => {
+        db.query('SELECT password_hash FROM users WHERE username = ?', [username], (err, results) => {
+          if (results.length > 0) {
+
+            const user = results[0];
+
+            console.log(user);
+            
+            const hashed_password = user.password_hash;
+
+            bcrypt.compare(password, hashed_password, (err, result) => {
               if (err) {
                 console.error('Error comparing passwords:', err);
-                
-            res.status(500).send('Internal server error');
+                res.status(500).send('Internal server error');
                 return;
               }
             
               if (result) {
                 console.log('Passwords match!');
+
+                console.log(req.session);
+                
+
+                req.session.userId = username;
+
+                console.log(req.session.userId);
+
+                res.redirect('/settingsindex');
               } else {
                 console.log('Passwords do not match!');
+                res.status(500).send('error: non-matching password');
               }
             });
 
           } else {
             res.status(500).send('Internal server error');
           }
+
         });
-        
-        
 
       });
 
-      app.post('/register_account', async (req, res) => {
+      router.post('/register_account', async (req, res) => {
         const { username, password, email } = req.body;
 
         const hashed_password = await bcrypt.hash(password, 10);
@@ -83,43 +105,51 @@ module.exports = function (app) {
       });
     // ---------- handle GETs
 
-    app.get("/", function (req, res) {
+    router.get("/", function (req, res) {
         res.render("index.ejs", { root: page_dir });
     });
 
-    app.get("/index", function (req, res) {
+    router.get("/index", function (req, res) {
         res.render("index.ejs", { root: page_dir });
     });
 
-    app.get("/aboutusindex", (req, res) => {
+    router.get("/aboutusindex", (req, res) => {
         res.render("aboutusindex.ejs", { root: page_dir });
     });
 
-    app.get("/budgetsindex", (req, res) => {
+    router.get("/budgetsindex", (req, res) => {
         res.render("budgetsindex.ejs", { root: page_dir });
     });
 
-    app.get("/createaccountindex", (req, res) => {
+    router.get("/createaccountindex", (req, res) => {
         res.render("createaccountindex.ejs", { root: page_dir });
     });
 
-    app.get("/loginindex", (req, res) => {
+    router.get("/loginindex", (req, res) => {
         res.render("loginindex.ejs", { root: page_dir });
     });
 
-    app.get("/reportindex", (req, res) => {
+    router.get("/reportindex", (req, res) => {
         res.render("reportindex.ejs", { root: page_dir });
     });
 
-    app.get("/settingsindex", (req, res) => {
+    router.get("/settingsindex", (req, res) => {
 
-        const plaidConn = true;
-        res.render("settingsindex.ejs", { plaidConn, root: page_dir });
+      session_id = req.session.userId;
+
+        const plaidConn = false;
+        res.render("settingsindex.ejs", { plaidConn, session_id, root: page_dir });
         
     });
 
-    app.get("/transactionindex", (req, res) => {
+    router.get("/transactionindex", (req, res) => {
         res.render("transactionindex.ejs", { root: page_dir });
     });
+
+    // app.use(router);
+
+  
     
-};
+// };
+
+  module.exports = router;
