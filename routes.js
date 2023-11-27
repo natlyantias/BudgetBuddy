@@ -21,25 +21,32 @@ module.exports = function (app) {
     app.post('/login_request', async (req, res) => {
         const { username, password } = req.body;
 
-        //TODO: properly check password hash so logging in works
-      
-        console.log(password_to_test);
+        const hashed_password = db.query('SELECT password_hash FROM users WHERE username = ?', [username], (err, results) => {
+          if (results.length > 0) {
+            
+            const hash_from_db = results[0].password_hash;
 
-        // Perform authentication against the database
-        const query = 'SELECT * FROM users WHERE username = ? AND password_hash = ?';
-        db.query(query, [username, password_to_test], (err, results) => {
-          if (err) {
-            console.error('MySQL query error:', err);
-            res.status(500).send('Internal Server Error');
-          } else if (results.length > 0) {
-            // User authenticated, store user information in the session
-            req.session.user = results[0];
-            res.redirect('/settingsindex');
+            bcrypt.compare(password, hash_from_db, (err, result) => {
+              if (err) {
+                console.error('Error comparing passwords:', err);
+                
+            res.status(500).send('Internal server error');
+                return;
+              }
+            
+              if (result) {
+                console.log('Passwords match!');
+              } else {
+                console.log('Passwords do not match!');
+              }
+            });
+
           } else {
-            res.status(401).send('Invalid username or password');
+            res.status(500).send('Internal server error');
           }
-
         });
+        
+        
 
       });
 
