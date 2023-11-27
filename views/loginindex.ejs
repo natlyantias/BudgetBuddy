@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account - Budget Buddy</title>
+    <title>Login - Budget Buddy</title>
     <link rel="stylesheet" type="text/css" href="/css/styles.css">
     <style>
         body {
@@ -39,7 +39,7 @@
             text-align: center;
         }
 
-        .create-account form {
+        .login-form {
             text-align: center;
         }
 
@@ -47,10 +47,10 @@
             font-size: 1.2rem;
             margin-top: 1rem;
             display: block;
+            text-align: left;
         }
 
         input[type="text"],
-        input[type="email"],
         input[type="password"] {
             width: 100%;
             padding: 10px;
@@ -101,35 +101,30 @@
     </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-             
-            </ul>
-        </nav>
-        <h1>Budget Buddy</h1>
-    </header>
+        <header>
+            <nav>
+                <ul>
+                    <li><a href="index">Home</a></li>
+                 
+                </ul>
+            </nav>
+            <h1>Budget Buddy</h1>
+        </header>
+    
 
     <main>
-        <section class="create-account">
-            <h2>Create Your Budget Buddy Account</h2>
-            <form action="#" method="post">
+        <section class="login-form">
+            <h2>Login to Your Budget Buddy Account</h2>
+            <form action="/login_request" method="post" enctype="application/x-www-form-urlencoded">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required>
-
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
 
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
 
-                <label for="confirm-password">Confirm Password</label>
-                <input type="password" id="confirm-password" name="confirm-password" required>
-
-                <a href="budgetsindex.html" class="cta-button">Get Started</a>
+                <button type="submit">Login</button>
             </form>
-            <p>Already have an account? <a href="loginindex.html">Log In</a></p>
+            <p>Don't have an account? <a href="createaccountindex">Sign up here</a></p>
         </section>
     </main>
 

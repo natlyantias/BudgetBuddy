@@ -120,11 +120,11 @@
     <header>
         <nav>
             <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="budgetsindex.html">Budgets</a></li>
-                <li><a href="transactionindex.html">Transactions</a></li>
-                <li><a href="reportindex.html">Reports</a></li>
-                <li><a href="settingsindex.html">Settings</a></li>
+                <li><a href="index">Home</a></li>
+                <li><a href="budgetsindex">Budgets</a></li>
+                <li><a href="transactionindex">Transactions</a></li>
+                <li><a href="reportindex">Reports</a></li>
+                <li><a href="settingsindex">Settings</a></li>
             </ul>
         </nav>
         <h1>Budget Buddy</h1>
@@ -142,7 +142,25 @@
         </section>
 
         <section class="plaid-connect">
-            <h3>Connect to Plaid</h3>
+            <% if (plaidConn) { %>
+            <h3>Already Connected to Plaid</h3>
+            <button
+    type="button"
+    class="btn btn-primary btn-dark btn-lg"
+    style="
+      border: 1px solid black;
+      border-radius: 5px;
+      background: gray;
+      height: 48px;
+      width: 155px;
+      margin-top: 5px; 
+      margin-left: 10;
+      color: white;
+      font-size: 18px;
+    ">
+            <% } else { %>
+                <h3>Connect to Plaid</h3>
+            
             <button
     type="button"
     id="link-account"
@@ -157,8 +175,8 @@
       margin-left: 10;
       color: white;
       font-size: 18px;
-    "
-  >
+    ">
+    <% } %>
     <strong>Link account</strong>
 </button>
 
