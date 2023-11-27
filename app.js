@@ -81,7 +81,7 @@ app.get("/api/create_link_token", async (req, res, next) => {
     user: { client_user_id: req.sessionID },
     client_name: "Plaid's Tiny Quickstart",
     language: "en",
-    products: ["auth"],
+    products: ["auth", "transactions"],
     country_codes: ["US"],
     redirect_uri: process.env.PLAID_SANDBOX_REDIRECT_URI,
   });
@@ -109,6 +109,29 @@ app.get("/api/data", async (req, res, next) => {
   res.json({
     Balance: balanceResponse.data,
   });
+});
+
+app.get("/api/transactions", async (req, res, next) => {
+  const access_token = req.session.access_token;
+
+  // Set the date range for the transactions you want to retrieve
+  const startDate = '2023-01-01'; // Adjust as needed
+  const endDate = '2023-01-31'; // Adjust as needed
+
+  try {
+    const transactionsResponse = await client.transactionsGet({
+      access_token,
+      start_date: startDate,
+      end_date: endDate,
+      options: {
+        count: 10, // Number of transactions to fetch
+        offset: 0,  // Offset for pagination
+      },
+    });
+    res.json(transactionsResponse.data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Checks whether the user's account is connected, called

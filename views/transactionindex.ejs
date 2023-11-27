@@ -28,6 +28,35 @@
             <a href="#" class="cta-button">Add Transaction</a>
         </section>
 
+        <script>
+            async function loadTransactions() {
+            try {
+                const response = await fetch('/api/transactions');
+                const data = await response.json();
+
+                // Assuming your data is an array of transactions
+                const transactionsList = document.querySelector('.transaction-list ul');
+                data.transactions.forEach(transaction => {
+                const listItem = document.createElement('li');
+                
+                const title = document.createElement('h4');
+                title.textContent = transaction.name; // adjust according to your data structure
+
+                const amount = document.createElement('p');
+                amount.textContent = transaction.amount; // adjust according to your data structure
+
+                listItem.appendChild(title);
+                listItem.appendChild(amount);
+                transactionsList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error('Failed to load transactions:', error);
+            }
+            }
+
+            loadTransactions();
+        </script>
+
         <section class="transaction-list">
             <h3>Recent Transactions</h3>
             <ul>
