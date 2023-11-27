@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Buddy - Transactions</title>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index">Home</a></li>
+                <li><a href="loginindex">Login</a></li>
+                <li><a href="budgetsindex">Budgets</a></li>
+                <li><a href="transactionindex">Transactions</a></li>
+                <li><a href="reportindex">Reports</a></li>
+                <li><a href="settingsindex">Settings</a></li>
+            </ul>
+        </nav>
+        <h1>Budget Buddy</h1>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h2>Your Transactions</h2>
+            <p>Manage and track your financial transactions.</p>
+            <a href="#" class="cta-button">Add Transaction</a>
+        </section>
+
+        <script>
+            async function loadTransactions() {
+            try {
+                const response = await fetch('/api/transactions');
+                const data = await response.json();
+
+                // Assuming your data is an array of transactions
+                const transactionsList = document.querySelector('.transaction-list ul');
+                data.transactions.forEach(transaction => {
+                const listItem = document.createElement('li');
+                
+                const title = document.createElement('h4');
+                title.textContent = transaction.name; // adjust according to your data structure
+
+                const amount = document.createElement('p');
+                amount.textContent = transaction.amount; // adjust according to your data structure
+
+                listItem.appendChild(title);
+                listItem.appendChild(amount);
+                transactionsList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error('Failed to load transactions:', error);
+            }
+            }
+
+            loadTransactions();
+        </script>
+
+        <section class="transaction-list">
+            <h3>Recent Transactions</h3>
+            <ul>
+                <li>
+                    <h4>...placeholder...</h4>
+                    <br>
+                </li>
+                
+            </ul>
+        </section>
+
+        <section class="transaction-list">
+            <h3>Upcoming Transactions</h3>
+            <ul>
+                <li>
+                    <h4>Rent Payment</h4>
+                    <p>....placeholder...</p>
+                </li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Budget Buddy. All rights reserved.</p>
+    </footer>
+</body>
+</html>
