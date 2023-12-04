@@ -118,7 +118,7 @@ app.get("/api/transactions", async (req, res, next) => {
 
   // Set the date range for the transactions you want to retrieve
   const startDate = '2023-01-01'; // Adjust as needed
-  const endDate = '2023-01-31'; // Adjust as needed
+  const endDate = '2023-12-31'; // Adjust as needed
 
   try {
     const transactionsResponse = await client.transactionsGet({
