@@ -89,6 +89,8 @@ app.get("/api/create_link_token", async (req, res, next) => {
 });
 
 // Exchanges the public token from Plaid Link for an access token
+// occurs when linking is complete
+// TODO: Store access_token in database
 app.post("/api/exchange_public_token", async (req, res, next) => {
   console.log("POST Route called: /api/exchange_public_token");
   const exchangeResponse = await client.itemPublicTokenExchange({
@@ -136,6 +138,7 @@ app.get("/api/transactions", async (req, res, next) => {
 
 // Checks whether the user's account is connected, called
 // in index.html when redirected from oauth.html
+// TODO: pull access_token from database
 app.get("/api/is_account_connected", async (req, res, next) => {
   console.log("GET Route called: /api/is_account_connected");
   // console.log(req.session.access_token);

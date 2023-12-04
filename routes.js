@@ -74,6 +74,8 @@ router.post("/login_request", async (req, res) => {
 
             req.session.userId = username;
 
+            req.session.email = 'email@domain.com';
+
             console.log(req.session.userId);
 
             res.redirect("/settings");
@@ -197,6 +199,7 @@ router.get("/settings", checkLoggedIn, (req, res) => {
 
   // pull data from session to display in response render
   session_id = req.session.userId;
+  session_email = req.session.email;
 
   
   res.render("settingsindex.ejs", { plaidConn, session_id, root: page_dir });
