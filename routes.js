@@ -156,8 +156,9 @@ router.get("/createaccount", (req, res) => {
 
 router.get("/login", (req, res) => {
   const message = req.query.message;
-  res.render("loginindex.ejs", { root: page_dir });
+  res.render("loginindex.ejs", { root: page_dir, message });
 });
+
 
 router.get("/reports", (req, res) => {
   res.render("reportindex.ejs", { root: page_dir });
