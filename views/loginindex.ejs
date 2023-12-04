@@ -85,15 +85,11 @@
         a {
             color: #007bff;
             text-decoration: none;
-            font-weight: normal;
+            font-weight: bold;
         }
 
         a:hover {
             text-decoration: underline;
-        }
-
-        .bold {
-            font-weight: bold;
         }
 
         footer {
@@ -114,11 +110,7 @@
         <section class="login-form">
             <h2>Login to Your Budget Buddy Account</h2>
            
-           <% if (message) { %>
-                <div class="message">
-                  <%= message %>
-                </div>
-              <% } %>
+    
 
             <form action="/login_request" method="post" enctype="application/x-www-form-urlencoded">
                 <label for="username">Username</label>
@@ -127,9 +119,9 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
 
-                <button class="bold" type="submit">Login</button>
+                <button type="submit">Login</button>
             </form>
-            <p>Don't have an account? <a class="bold" href="createaccount">Sign up here</a></p>
+            <p>Don't have an account? <a href="createaccount">Sign up here</a></p>
         </section>
     </main>
 
