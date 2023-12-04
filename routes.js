@@ -38,6 +38,7 @@ const checkLoggedIn = (req, res, next) => {
     console.log(req.session);
     res.redirect("/login?message=Please log in to access your settings.");
 
+
   }
 };
 
@@ -156,6 +157,7 @@ router.get("/createaccount", (req, res) => {
 
 router.get("/login", (req, res) => {
   const message = req.query.message;
+
   res.render("loginindex.ejs", { root: page_dir, message });
 });
 
