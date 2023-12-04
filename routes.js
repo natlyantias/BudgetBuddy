@@ -36,7 +36,9 @@ const checkLoggedIn = (req, res, next) => {
     // User is not logged in, redirect to the login page or send an error response
     console.log("No login detected");
     console.log(req.session);
-    res.redirect('/login');
+    res.redirect("/login?message=Please log in to access your settings.");
+
+
   }
 };
 
@@ -154,8 +156,11 @@ router.get("/createaccount", (req, res) => {
 });
 
 router.get("/login", (req, res) => {
-  res.render("loginindex.ejs", { root: page_dir });
+  const message = req.query.message;
+
+  res.render("loginindex.ejs", { root: page_dir, message });
 });
+
 
 router.get("/reports", (req, res) => {
   res.render("reportindex.ejs", { root: page_dir });
@@ -166,6 +171,11 @@ router.get("/settings", checkLoggedIn, (req, res) => {
   // Assume plaid is not connected unless a token is returned from the session body
   let plaidConn = false;
   console.log("Checking connection status...");
+  if (!req.session.userId) {
+    res.send("Please log in to access your settings.");
+    return;
+  }
+
 
   let token = req.session.access_token ?? 'empty';
   // console.log(token);
