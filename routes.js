@@ -166,6 +166,11 @@ router.get("/settings", checkLoggedIn, (req, res) => {
   // Assume plaid is not connected unless a token is returned from the session body
   let plaidConn = false;
   console.log("Checking connection status...");
+  if (!req.session.userId) {
+    res.send("Please log in to access your settings.");
+    return;
+  }
+
 
   let token = req.session.access_token ?? 'empty';
   // console.log(token);
