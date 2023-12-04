@@ -1,5 +1,4 @@
 
-/* Reset some default styles */
 body, h1, h2, h3, p, ul, li, a {
     margin: 0;
     padding: 0;
@@ -8,6 +7,9 @@ body, h1, h2, h3, p, ul, li, a {
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensure at least 100% viewport height */
 }
 
 header {
@@ -38,6 +40,7 @@ nav a {
 }
 
 main {
+    flex: 1; /* Take remaining vertical space */
     max-width: 800px;
     margin: 2rem auto;
     padding: 2rem;
