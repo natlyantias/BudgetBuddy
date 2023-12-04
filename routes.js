@@ -30,16 +30,17 @@ const checkLoggedIn = (req, res, next) => {
   if (req.session && req.session.userId) {
     console.log("Login detected");
     console.log(req.session);
-    // User is logged in, proceed to the next middleware/route handler
+    // User is logged in, proceed to the next route handler
     next();
   } else {
-    // User is not logged in, redirect to the login page or send an error response
+    // User is not logged in, redirect to the login page
     console.log("No login detected");
     console.log(req.session);
-    res.redirect("/login?message=Please log in to access your settings.");
-
+    //const nologin_msg = "Please log in first.";
+    res.redirect("/login?message=Please log in first.");
 
   }
+
 };
 
 
@@ -104,9 +105,11 @@ router.post("/register_account", async (req, res) => {
     if (checkErr) {
       console.error("MySQL query error:", checkErr);
       res.status(500).send("Internal Server Error");
+
     } else if (checkResults.length > 0) {
       // Username is already taken
       res.status(400).send("Username is already taken");
+
     } else {
       // Create a new user
       const insertQuery = "INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)";
@@ -117,9 +120,11 @@ router.post("/register_account", async (req, res) => {
           if (insertErr) {
             console.error("MySQL query error:", insertErr);
             res.status(500).send("Internal Server Error");
+
           } else {
             // User registration successful
             res.redirect("/login");
+
           }
 
         }
@@ -129,7 +134,6 @@ router.post("/register_account", async (req, res) => {
     }
 
   });
-
 });
 
 
@@ -147,8 +151,16 @@ router.get("/aboutus", (req, res) => {
   res.render("aboutusindex.ejs", { root: page_dir });
 });
 
-router.get("/budgets", (req, res) => {
+router.get("/budgets", checkLoggedIn, (req, res) => {
   res.render("budgetsindex.ejs", { root: page_dir });
+});
+
+router.get("/transactions", checkLoggedIn, (req, res) => {
+  res.render("transactionindex.ejs", { root: page_dir });
+});
+
+router.get("/reports", checkLoggedIn, (req, res) => {
+  res.render("reportindex.ejs", { root: page_dir });
 });
 
 router.get("/createaccount", (req, res) => {
@@ -159,11 +171,6 @@ router.get("/login", (req, res) => {
   const message = req.query.message;
 
   res.render("loginindex.ejs", { root: page_dir, message });
-});
-
-
-router.get("/reports", (req, res) => {
-  res.render("reportindex.ejs", { root: page_dir });
 });
 
 router.get("/settings", checkLoggedIn, (req, res) => {
@@ -195,9 +202,6 @@ router.get("/settings", checkLoggedIn, (req, res) => {
   res.render("settingsindex.ejs", { plaidConn, session_id, root: page_dir });
 });
 
-router.get("/transactions", (req, res) => {
-  res.render("transactionindex.ejs", { root: page_dir });
-});
 
 // export all routes after they have been defined for use in app.js
 module.exports = router;
