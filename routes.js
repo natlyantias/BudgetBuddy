@@ -24,6 +24,22 @@ const router = express.Router();
 // document root for web pages
 const page_dir = path.join(__dirname, "views");
 
+// Define the middleware function to check if the user is logged in
+const checkLoggedIn = (req, res, next) => {
+  // Check if user is logged in
+  if (req.session && req.session.userId) {
+    console.log("Login detected");
+    console.log(req.session);
+    // User is logged in, proceed to the next middleware/route handler
+    next();
+  } else {
+    // User is not logged in, redirect to the login page or send an error response
+    console.log("No login detected");
+    console.log(req.session);
+    res.redirect('/login');
+  }
+};
+
 
 // ---------- handle POSTs
 
@@ -32,9 +48,7 @@ router.post("/login_request", async (req, res) => {
 
   console.log(req.body);
 
-  db.query(
-    "SELECT password_hash FROM users WHERE username = ?",
-    [username],
+  db.query("SELECT password_hash FROM users WHERE username = ?", [username],
     (err, results) => {
       if (results.length > 0) {
         const user = results[0];
@@ -59,7 +73,7 @@ router.post("/login_request", async (req, res) => {
 
             console.log(req.session.userId);
 
-            res.redirect("/settingsindex");
+            res.redirect("/settings");
           } else {
             console.log("Passwords do not match!");
             res.status(500).send("error: non-matching password");
@@ -84,8 +98,7 @@ router.post("/register_account", async (req, res) => {
   console.log(hashed_password);
 
   // Check if the username is already taken
-  const checkQuery = "SELECT * FROM users WHERE username = ?";
-  db.query(checkQuery, [username], (checkErr, checkResults) => {
+  db.query("SELECT * FROM users WHERE username = ?", [username], (checkErr, checkResults) => {
     if (checkErr) {
       console.error("MySQL query error:", checkErr);
       res.status(500).send("Internal Server Error");
@@ -94,8 +107,7 @@ router.post("/register_account", async (req, res) => {
       res.status(400).send("Username is already taken");
     } else {
       // Create a new user
-      const insertQuery =
-        "INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)";
+      const insertQuery = "INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)";
       db.query(
         insertQuery,
         [username, hashed_password, email],
@@ -105,7 +117,7 @@ router.post("/register_account", async (req, res) => {
             res.status(500).send("Internal Server Error");
           } else {
             // User registration successful, redirect to login page (replace '/login' with your desired route)
-            res.redirect("/loginindex");
+            res.redirect("/login");
           }
 
         }
@@ -129,37 +141,51 @@ router.get("/index", function (req, res) {
   res.render("index.ejs", { root: page_dir });
 });
 
-router.get("/aboutusindex", (req, res) => {
+router.get("/aboutus", (req, res) => {
   res.render("aboutusindex.ejs", { root: page_dir });
 });
 
-router.get("/budgetsindex", (req, res) => {
+router.get("/budgets", (req, res) => {
   res.render("budgetsindex.ejs", { root: page_dir });
 });
 
-router.get("/createaccountindex", (req, res) => {
+router.get("/createaccount", (req, res) => {
   res.render("createaccountindex.ejs", { root: page_dir });
 });
 
-router.get("/loginindex", (req, res) => {
+router.get("/login", (req, res) => {
   res.render("loginindex.ejs", { root: page_dir });
 });
 
-router.get("/reportindex", (req, res) => {
+router.get("/reports", (req, res) => {
   res.render("reportindex.ejs", { root: page_dir });
 });
 
-router.get("/settingsindex", (req, res) => {
+router.get("/settings", checkLoggedIn, (req, res) => {
+
+  // Assume plaid is not connected unless a token is returned from the session body
+  let plaidConn = false;
+  console.log("Checking connection status...");
+
+  let token = req.session.access_token ?? 'empty';
+  // console.log(token);
+
+  if (token !== 'empty') {
+    console.log("Plaid API token found!");
+    plaidConn = true;
+  } else {
+    console.log("Plaid not connected");
+  }
+
+
   // pull data from session to display in response render
   session_id = req.session.userId;
 
-  // placeholder for plaid connectivity check
-  const plaidConn = false;
   
   res.render("settingsindex.ejs", { plaidConn, session_id, root: page_dir });
 });
 
-router.get("/transactionindex", (req, res) => {
+router.get("/transactions", (req, res) => {
   res.render("transactionindex.ejs", { root: page_dir });
 });
 
