@@ -118,7 +118,7 @@ router.post("/register_account", async (req, res) => {
             console.error("MySQL query error:", insertErr);
             res.status(500).send("Internal Server Error");
           } else {
-            // User registration successful, redirect to login page (replace '/login' with your desired route)
+            // User registration successful
             res.redirect("/login");
           }
 
