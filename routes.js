@@ -36,7 +36,8 @@ const checkLoggedIn = (req, res, next) => {
     // User is not logged in, redirect to the login page or send an error response
     console.log("No login detected");
     console.log(req.session);
-    res.redirect('/login');
+    res.redirect("/login?message=Please log in to access your settings.");
+
   }
 };
 
@@ -154,6 +155,7 @@ router.get("/createaccount", (req, res) => {
 });
 
 router.get("/login", (req, res) => {
+  const message = req.query.message;
   res.render("loginindex.ejs", { root: page_dir });
 });
 
