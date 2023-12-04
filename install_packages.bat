@@ -12,7 +12,7 @@ cd /d "!script_dir!"
 
 :: Check if package-lock.json exists, and if so, use it for installation
 if exist package-lock.json (
-    npm ci || echo Failed to install packages.
+    npm i || echo Failed to install packages.
 ) else (
     npm install
 )
