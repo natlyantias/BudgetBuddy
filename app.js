@@ -20,6 +20,7 @@ const express = require("express");
 const mysql = require("mysql2");
 const bcrypt = require("bcrypt");
 const path = require("path");
+
 //import other scripts in the same directory
 const db = require('./db');
 
@@ -36,18 +37,19 @@ const sessionMiddleware = require("./session");
 
 // ---------- DEFINE MIDDLEWARE
 
-// serve /public folder (css files mostly)
+// serve /public folder
 app.use(express.static("public"));
 
 // parse JSON and urlencoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
 
+// express-session middleware
+app.use(sessionMiddleware);
+
 //importing routes must be located after URL parsing
 const routes = require("./routes");
 
-// express-session middleware
-app.use(sessionMiddleware);
 
 //
 app.use(routes);
@@ -90,32 +92,94 @@ app.get("/api/create_link_token", async (req, res, next) => {
 
 // Exchanges the public token from Plaid Link for an access token
 // occurs when linking is complete
-// TODO: Store access_token in database
 app.post("/api/exchange_public_token", async (req, res, next) => {
   console.log("POST Route called: /api/exchange_public_token");
   const exchangeResponse = await client.itemPublicTokenExchange({
     public_token: req.body.public_token,
   });
 
+  plaid_token = exchangeResponse.data.access_token;
+
+  console.log("UPDATE users SET access_token = ", plaid_token, " WHERE username = ", req.session.userId);
+
+
+  db.query("UPDATE users SET access_token = ? WHERE username = ?",
+  [plaid_token, req.session.userId], (err, results) => {
+    if (err) {
+      console.error("MySQL query error:", err);
+      res.status(500).send("Internal Server Error");
+
+    } else {
+      console.log("Query successful, with token ", plaid_token);
+    }
+
+  });
+
   // FOR DEMO PURPOSES ONLY
   // Store access_token in DB instead of session storage
-  req.session.access_token = exchangeResponse.data.access_token;
+  // req.session.access_token = exchangeResponse.data.access_token;
+
   res.json(true);
 });
 
 // Fetches balance data using the Node client library for Plaid
 app.get("/api/data", async (req, res, next) => {
   console.log("GET Route called: /api/data");
-  const access_token = req.session.access_token;
-  const balanceResponse = await client.accountsBalanceGet({ access_token });
-  res.json({
-    Balance: balanceResponse.data,
-  });
+
+  const username = req.session.userId;
+
+  if (!username) {
+    return res.status(500).send("Internal Server Error");
+  }
+
+  try {
+    const result = await query("SELECT access_token FROM users WHERE username = ?", [username]);
+
+    if (result.length > 0) {
+      console.log("Query successful");
+      const access_token = result[0].access_token;
+      console.log("Fetched token: ", access_token);
+
+      const balanceResponse = await client.accountsBalanceGet({ access_token });
+      res.json({
+        Balance: balanceResponse.data,
+      });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
+  } catch (error) {
+    console.error("MySQL query error:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
-app.get("/api/transactions", async (req, res, next) => {
-  const access_token = req.session.access_token;
 
+app.get("/api/transactions", async (req, res, next) => {
+
+  const username = req.session.userId;
+
+  if (username) {
+    console.log("Valid userID found");
+  } else {
+    return res.status(500).send("Internal Server Error");
+  }
+
+  db.query("SELECT access_token FROM users WHERE username = ?", [username],
+  (err, result) => {
+    if (err) {
+      console.error("MySQL query error:", err);
+      res.status(500).send("Internal Server Error");
+
+    } else if (result) {
+      console.log("Query successful");
+      const access_token = result[0].access_token;
+      console.log("Fetched token: ", access_token);
+
+    }
+
+  });
+
+  // const access_token = req.session.access_token;
   // Set the date range for the transactions you want to retrieve
   const startDate = '2023-01-01'; // Adjust as needed
   const endDate = '2023-12-31'; // Adjust as needed
@@ -138,12 +202,32 @@ app.get("/api/transactions", async (req, res, next) => {
 
 // Checks whether the user's account is connected, called
 // in index.html when redirected from oauth.html
-// TODO: pull access_token from database
 app.get("/api/is_account_connected", async (req, res, next) => {
   console.log("GET Route called: /api/is_account_connected");
-  // console.log(req.session.access_token);
-  return (req.session.access_token ? res.json({ status: true }) : res.json({ status: false}));
+
+  const username = req.session.userId;
+
+  if (!username) {
+    return res.status(500).send("Internal Server Error");
+  }
+
+  try {
+    const result = db.query("SELECT access_token FROM users WHERE username = ?", [username]);
+
+    if (result.length > 0) {
+      console.log("Query successful");
+      const access_token = result[0].access_token;
+      console.log("Fetched token: ", access_token);
+      return res.json({ status: !!access_token });
+    } else {
+      res.status(500).send("Internal Server Error");
+    }
+  } catch (error) {
+    console.error("MySQL query error:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
+
 
 
 // ---------- INITIALIZE WEB SERVER

@@ -128,6 +128,7 @@
         <script>
             async function loadTransactions() {
             try {
+                console.log("Embedded script - fetching Plaid transactions...")
                 const response = await fetch('/api/transactions');
                 const data = await response.json();
 
@@ -148,11 +149,19 @@
                 });
             } catch (error) {
                 console.error('Failed to load transactions:', error);
+                var plaidAlert = document.createElement('p');
+                var plaidAlertText = document.createTextNode('Unable to load Plaid data.');
+
+                plaidAlert.appendChild(plaidAlertText);
+                document.body.appendChild(plaidAlert);
             }
             }
 
             loadTransactions();
         </script>
+
+        <!-- script output anchor for loadTransactions() -->
+        <section id="plaid-alert"></section>
 
         <section class="transaction-list">
             <h3>Recent Transactions</h3>

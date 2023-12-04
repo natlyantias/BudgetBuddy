@@ -18,13 +18,13 @@ const path = require("path");
 const express = require("express");
 const bcrypt = require("bcrypt");
 
-//middleware
-const router = express.Router();
-
 // document root for web pages
 const page_dir = path.join(__dirname, "views");
 
-// Define the middleware function to check if the user is logged in
+//middleware
+const router = express.Router();
+
+// Prevent the user from viewing any pages that require logging in first
 const checkLoggedIn = (req, res, next) => {
   // Check if user is logged in
   if (req.session && req.session.userId) {
@@ -177,32 +177,35 @@ router.get("/login", (req, res) => {
 
 router.get("/settings", checkLoggedIn, (req, res) => {
 
-  // Assume plaid is not connected unless a token is returned from the session body
-  let plaidConn = false;
-  console.log("Checking connection status...");
-  if (!req.session.userId) {
-    res.send("Please log in to access your settings.");
-    return;
+  // Assume plaid is not connected unless a token is returned from database
+  let plaidConn;
+
+  const username = req.session.userId;
+
+  if (!username) {
+    console.log("No username found while trying to check for Plaid connectivity");
+    return false;
   }
 
+  db.query("SELECT access_token FROM users WHERE username = ?", [username], (err, results) => {
+    if (err) {
+      console.err("Error:", err);
+    } else if (results.length > 0) {
+      console.log("yipee:",results[0].access_token);
+      plaidConn = true;
+    } else {
+      console.log("No Plaid token found in database");
+      plaidConn = false;
+    }
 
-  let token = req.session.access_token ?? 'empty';
-  // console.log(token);
-
-  if (token !== 'empty') {
-    console.log("Plaid API token found!");
-    plaidConn = true;
-  } else {
-    console.log("Plaid not connected");
-  }
-
-
+ console.log("Result is", plaidConn);
   // pull data from session to display in response render
   session_id = req.session.userId;
   session_email = req.session.email;
 
-  
-  res.render("settingsindex.ejs", { plaidConn, session_id, root: page_dir });
+    res.render("settingsindex.ejs", { plaidConn, session_id, root: page_dir });
+  });  
+
 });
 
 
