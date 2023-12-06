@@ -192,7 +192,7 @@ router.get("/settings", checkLoggedIn, (req, res) => {
       console.err("Error:", err);
     } else if (results.length > 0) {
       console.log("yipee:",results[0].access_token);
-      plaidConn = true;
+      plaidConn = false; // for testing purposes
     } else {
       console.log("No Plaid token found in database");
       plaidConn = false;
