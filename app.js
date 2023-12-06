@@ -17,7 +17,7 @@ require("dotenv").config();
 // const bodyParser = require("body-parser");
 // const MySQLStore = require("express-mysql-session")(session);
 const express = require("express");
-const mysql = require("mysql2");
+const mysql = require("mysql2/promise");
 const bcrypt = require("bcrypt");
 const path = require("path");
 
@@ -123,7 +123,7 @@ app.post("/api/exchange_public_token", async (req, res, next) => {
 });
 
 // Fetches balance data using the Node client library for Plaid
-app.get("/api/data", async (req, res, next) => {
+app.get("/api/data", (req, res, next) => {
   console.log("GET Route called: /api/data");
 
   const username = req.session.userId;
@@ -132,72 +132,67 @@ app.get("/api/data", async (req, res, next) => {
     return res.status(500).send("Internal Server Error");
   }
 
-  try {
-    const result = await query("SELECT access_token FROM users WHERE username = ?", [username]);
-
-    if (result.length > 0) {
-      console.log("Query successful");
+  db.query("SELECT access_token FROM users WHERE username = ?", [username],
+  async (err, result) => {
+    if (err) {
+      console.error("MySQL query error:", err);
+      return res.status(500).send("Internal Server Error");
+    } else if (result && result.length > 0) {
       const access_token = result[0].access_token;
       console.log("Fetched token: ", access_token);
 
-      const balanceResponse = await client.accountsBalanceGet({ access_token });
-      res.json({
-        Balance: balanceResponse.data,
-      });
+      try {
+        const balanceResponse = await client.accountsBalanceGet({ access_token });
+        res.json({
+          Balance: balanceResponse.data,
+        });
+      } catch (error) {
+        console.error("Error fetching balance:", error);
+        res.status(500).json({ error: error.message });
+      }
     } else {
-      res.status(500).send("Internal Server Error");
+      res.status(404).send("No access token found for the user");
     }
-  } catch (error) {
-    console.error("MySQL query error:", error);
-    res.status(500).send("Internal Server Error");
-  }
+  });
 });
 
 
 app.get("/api/transactions", async (req, res, next) => {
-
   const username = req.session.userId;
 
-  if (username) {
-    console.log("Valid userID found");
-  } else {
+  if (!username) {
     return res.status(500).send("Internal Server Error");
   }
 
   db.query("SELECT access_token FROM users WHERE username = ?", [username],
-  (err, result) => {
+  async (err, result) => {
     if (err) {
       console.error("MySQL query error:", err);
       res.status(500).send("Internal Server Error");
-
-    } else if (result) {
-      console.log("Query successful");
+    } else if (result && result.length > 0) {
       const access_token = result[0].access_token;
-      console.log("Fetched token: ", access_token);
 
+      const startDate = '2023-01-01'; // Adjust as needed
+      const endDate = '2023-12-31'; // Adjust as needed
+
+      try {
+        const transactionsResponse = await client.transactionsGet({
+          access_token,
+          start_date: startDate,
+          end_date: endDate,
+          options: {
+            count: 10, // Number of transactions to fetch
+            offset: 0,  // Offset for pagination
+          },
+        });
+        res.json(transactionsResponse.data);
+      } catch (error) {
+        res.status(500).json({ error: error.message });
+      }
+    } else {
+      res.status(404).send("No access token found for the user");
     }
-
   });
-
-  // const access_token = req.session.access_token;
-  // Set the date range for the transactions you want to retrieve
-  const startDate = '2023-01-01'; // Adjust as needed
-  const endDate = '2023-12-31'; // Adjust as needed
-
-  try {
-    const transactionsResponse = await client.transactionsGet({
-      access_token,
-      start_date: startDate,
-      end_date: endDate,
-      options: {
-        count: 10, // Number of transactions to fetch
-        offset: 0,  // Offset for pagination
-      },
-    });
-    res.json(transactionsResponse.data);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 });
 
 // Checks whether the user's account is connected, called
