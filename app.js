@@ -20,10 +20,9 @@ const express = require("express");
 const mysql = require("mysql2/promise");
 const bcrypt = require("bcrypt");
 const path = require("path");
-
 //import other scripts in the same directory
 const db = require('./db');
-
+const loadTransactions = require('./transactions');
 
 // initialize express.js
 const app = express();
@@ -186,6 +185,27 @@ app.get("/api/transactions", async (req, res, next) => {
           },
         });
         res.json(transactionsResponse.data);
+        db.query("SELECT user_id FROM users WHERE username = ?", [username], function(err, results) {
+          if (err) {
+              // handle error
+              console.error(err);
+              return;
+          }
+      
+          if (results.length > 0) {
+              const userId = results[0].user_id;
+              // use userId here
+              console.log(userId);
+              loadTransactions(transactionsResponse.data, userId).then(() => {
+                console.log('Transactions loaded');
+              }).catch(err => {
+                console.error('Failed to load transactions:', err);
+              });
+          } else {
+              // no results found
+              console.log("No user found with that username");
+          }
+      });
       } catch (error) {
         res.status(500).json({ error: error.message });
       }
@@ -194,6 +214,7 @@ app.get("/api/transactions", async (req, res, next) => {
     }
   });
 });
+
 
 // Checks whether the user's account is connected, called
 // in index.html when redirected from oauth.html

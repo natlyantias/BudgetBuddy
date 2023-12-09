@@ -208,6 +208,9 @@ router.get("/settings", checkLoggedIn, (req, res) => {
 
 });
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 // export all routes after they have been defined for use in app.js
 module.exports = router;
