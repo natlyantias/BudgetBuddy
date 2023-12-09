@@ -27,7 +27,7 @@ const router = express.Router();
 // Prevent the user from viewing any pages that require logging in first
 const checkLoggedIn = (req, res, next) => {
   // Check if user is logged in
-  if (req.session && req.session.userId) {
+  if (req.session && req.session.username) {
     console.log("Login detected");
     console.log(req.session);
     // User is logged in, proceed to the next route handler
@@ -52,9 +52,9 @@ router.post("/login_request", async (req, res) => {
   console.log(req.body);
 
   db.query("SELECT password_hash FROM users WHERE username = ?", [username],
-    (err, results) => {
-      if (results.length > 0) {
-        const user = results[0];
+    (err, password_hash_result) => {
+      if (password_hash_result.length > 0) {
+        const user = password_hash_result[0];
 
         console.log(user);
 
@@ -68,21 +68,36 @@ router.post("/login_request", async (req, res) => {
           }
 
           if (result) {
+            // successful login
             console.log("Passwords match!");
 
-            console.log(req.session);
+            
 
-            req.session.userId = username;
+            req.session.username = username;
 
             req.session.email = 'email@domain.com';
 
-            console.log(req.session.userId);
+            req.session.userId = -1;
+
+            db.query("SELECT user_id FROM users WHERE username = ?", [username],
+              (err, userId_result) => {
+                req.session.userId = userId_result[0].user_id;
+                console.log(req.session.userId);
+              
+
+            console.log(req.session);
+            console.log("Username is", req.session.username);
+            console.log("User id is", req.session.userId);
 
             res.redirect("/settings");
+
+});
+
           } else {
             console.log("Passwords do not match!");
             res.status(500).send("error: non-matching password");
           }
+          
         });
 
       } else {
@@ -180,7 +195,7 @@ router.get("/settings", checkLoggedIn, (req, res) => {
   // Assume plaid is not connected unless a token is returned from database
   let plaidConn;
 
-  const username = req.session.userId;
+  const username = req.session.username;
 
   if (!username) {
     console.log("No username found while trying to check for Plaid connectivity");
@@ -189,7 +204,7 @@ router.get("/settings", checkLoggedIn, (req, res) => {
 
   db.query("SELECT access_token FROM users WHERE username = ?", [username], (err, results) => {
     if (err) {
-      console.err("Error:", err);
+      console.error("Error:", err);
     } else if (results.length > 0) {
       console.log("yipee:",results[0].access_token);
       plaidConn = false; // for testing purposes
@@ -200,10 +215,10 @@ router.get("/settings", checkLoggedIn, (req, res) => {
 
  console.log("Result is", plaidConn);
   // pull data from session to display in response render
-  session_id = req.session.userId;
+  session_username = req.session.username;
   session_email = req.session.email;
 
-    res.render("settingsindex.ejs", { plaidConn, session_id, root: page_dir });
+    res.render("settingsindex.ejs", { plaidConn, session_username, root: page_dir });
   });  
 
 });
