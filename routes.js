@@ -17,7 +17,7 @@ const sessionMiddleware = require("./session");
 const path = require("path");
 const express = require("express");
 const bcrypt = require("bcrypt");
-
+const mysql = require('mysql2/promise');
 // document root for web pages
 const page_dir = path.join(__dirname, "views");
 
@@ -207,7 +207,53 @@ router.get("/settings", checkLoggedIn, (req, res) => {
   });  
 
 });
+router.get("/storeTransactions", async (req, res) => {
+  try {
+    const response = await fetch('/api/transactions');
+    const d1 = await response.json();
+    const data = json.parse(d1);
+    const connection = require("./db");
 
+
+    // Iterate over each account in the JSON data
+    for (const account of data.accounts) {
+        // Extract data
+        const accountId = account.account_id; // Assuming account_id is provided in your JSON data
+        const userId = 1;
+        const accountName = account.name;
+        const accountBalance = account.balances.available;
+        const accountType = account.subtype; // Assuming subtype is the account type
+    
+        // Insert into database
+        const query = `
+            INSERT INTO accounts (account_id, user_id, account_name, account_balance, account_type)
+            VALUES (?, ?, ?, ?, ?);`;
+    
+        await connection.execute(query, [accountId, userId, accountName, accountBalance, accountType]);
+    }
+    for (const transaction of data.transactions) {
+        // Extract data
+        const userId = 1; // You might have a way to link transactions to users
+        const amount = -1*(transaction.amount);
+        const transactionDate = transaction.authorized_date;
+        const category = transaction.category[0];
+        const description = transaction.name; // Using 'name' as the description
+    
+        // Insert into database
+        const query = `
+            INSERT INTO transactions (user_id, amount, transaction_date, category, description)
+            VALUES (?, ?, ?, ?, ?);`;
+    
+        await connection.execute(query, [userId, amount, transactionDate, category, description]);
+    }
+    
+
+    console.log('Data inserted successfully');
+    await connection.end();
+} catch (error) {
+    console.error('Error:', error);
+}
+});
 
 // export all routes after they have been defined for use in app.js
 module.exports = router;

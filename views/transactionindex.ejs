@@ -13,6 +13,7 @@
 
 
     <main>
+        <button id="displayTransactions">Display Transactions</button>
         <section class="hero">
             <h2>Your Transactions</h2>
             <p>Manage and track your financial transactions.</p>
@@ -125,41 +126,6 @@
                 </div>
             </div>
         </div>
-        <script>
-            async function loadTransactions() {
-            try {
-                console.log("Embedded script - fetching Plaid transactions...")
-                const response = await fetch('/api/transactions');
-                const data = await response.json();
-
-                // Assuming your data is an array of transactions
-                const transactionsList = document.querySelector('.transaction-list ul');
-                data.transactions.forEach(transaction => {
-                const listItem = document.createElement('li');
-                
-                const title = document.createElement('h4');
-                title.textContent = transaction.name; // adjust according to your data structure
-
-                const amount = document.createElement('p');
-                amount.textContent = transaction.amount; // adjust according to your data structure
-
-                listItem.appendChild(title);
-                listItem.appendChild(amount);
-                transactionsList.appendChild(listItem);
-                });
-            } catch (error) {
-                console.error('Failed to load transactions:', error);
-                var plaidAlert = document.createElement('p');
-                var plaidAlertText = document.createTextNode('Unable to load Plaid data.');
-
-                plaidAlert.appendChild(plaidAlertText);
-                document.body.appendChild(plaidAlert);
-            }
-            }
-
-            loadTransactions();
-        </script>
-
         <!-- script output anchor for loadTransactions() -->
         <section id="plaid-alert"></section>
 
@@ -189,6 +155,16 @@
         <p>&copy; 2023 Budget Buddy. All rights reserved.</p>
     </footer>
     <script>
+            async function loadTransactions() {
+            try {
+                const response = await fetch("/storeTransactions")
+            } catch (error) {
+                console.error('Failed to load transactions:', error);
+
+            }
+            }
+
+            loadTransactions();
         // Get the popup
         var popup = document.getElementById('transactionPopup');
     
@@ -239,6 +215,7 @@
         var frequencySelect = document.getElementById('incomeFrequency');
         frequencySelect.disabled = this.checked;
         });
+        
     </script>
 </body>
 </html>
