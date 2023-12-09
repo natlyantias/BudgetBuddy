@@ -99,11 +99,11 @@ app.post("/api/exchange_public_token", async (req, res, next) => {
 
   plaid_token = exchangeResponse.data.access_token;
 
-  console.log("UPDATE users SET access_token = ", plaid_token, " WHERE username = ", req.session.userId);
+  console.log("UPDATE users SET access_token = ", plaid_token, " WHERE username = ", req.session.username);
 
 
   db.query("UPDATE users SET access_token = ? WHERE username = ?",
-  [plaid_token, req.session.userId], (err, results) => {
+  [plaid_token, req.session.username], (err, results) => {
     if (err) {
       console.error("MySQL query error:", err);
       res.status(500).send("Internal Server Error");
@@ -125,7 +125,7 @@ app.post("/api/exchange_public_token", async (req, res, next) => {
 app.get("/api/data", (req, res, next) => {
   console.log("GET Route called: /api/data");
 
-  const username = req.session.userId;
+  const username = req.session.username;
 
   if (!username) {
     return res.status(500).send("Internal Server Error");
@@ -157,7 +157,7 @@ app.get("/api/data", (req, res, next) => {
 
 
 app.get("/api/transactions", async (req, res, next) => {
-  const username = req.session.userId;
+  const username = req.session.username;
 
   if (!username) {
     return res.status(500).send("Internal Server Error");
@@ -221,7 +221,7 @@ app.get("/api/transactions", async (req, res, next) => {
 app.get("/api/is_account_connected", async (req, res, next) => {
   console.log("GET Route called: /api/is_account_connected");
 
-  const username = req.session.userId;
+  const username = req.session.username;
 
   if (!username) {
     return res.status(500).send("Internal Server Error");
