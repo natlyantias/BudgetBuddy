@@ -41,7 +41,7 @@ async function loadTransactions(jfile, un) {
         
 
         console.log('Data inserted successfully');
-        await connection.end();
+        
     } catch (error) {
         console.error('Error:', error);
     }
