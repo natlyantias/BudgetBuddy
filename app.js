@@ -16,9 +16,9 @@ require("dotenv").config();
 // const bodyParser = require("body-parser");
 // const MySQLStore = require("express-mysql-session")(session);
 const express = require("express");
-const mysql = require("mysql2/promise");
-const bcrypt = require("bcrypt");
-const path = require("path");
+// const mysql = require("mysql2/promise");
+// const bcrypt = require("bcrypt");
+// const path = require("path");
 //import other scripts in the same directory
 const { db, query } = require('./db');
 const loadTransactions = require("./transactions");

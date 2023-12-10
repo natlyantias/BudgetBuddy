@@ -1,5 +1,5 @@
 <!-- transactionindex.ejs
-        CREDIT: w3schools.com for for consulting html tag tutorials
+        CREDIT: https://www.w3schools.com/html/default.asp
 
     -->
 
@@ -12,6 +12,14 @@
     <link rel="stylesheet" type="text/css" href="/css/styles.css">
 
     <style>
+
+        .table-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid black;
+            padding: 10px;
+        }
+
         table {
           font-family: arial, sans-serif;
           border-collapse: collapse;
@@ -20,8 +28,8 @@
         
         td, th {
           border: 1px solid #dddddd;
-          text-align: left;
-          padding: 8px;
+          text-align: center;
+          padding: 5px;
         }
         
         tr:nth-child(even) {
@@ -153,26 +161,16 @@
 
         <section class="transaction-list">
             <h3>Recent Transactions</h3>
-            <table id="transactionsTable">
-                <tr>
-                    <th>Column 1</th>
-                    <th>Column 2</th>
-                    <th>Column 3</th>
-                    <th>Column 4</th>
-                </tr>
-                <tr>
-                    <td>Record 1</td>
-                    <td>Record 2</td>
-                    <td>Record 3</td>
-                    <td>Record 4</td>
-                </tr>
-                <tr>
-                    <td>Record 1</td>
-                    <td>Record 2</td>
-                    <td>Record 3</td>
-                    <td>Record 4</td>
-                </tr>
-            </table>
+            <div class="table-container">
+                <table id="transactionsTable">
+                    <tr>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                    </tr>
+                </table>
+            </div>
 
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
@@ -217,6 +215,131 @@
 
         <section class="transaction-list">
             <h3>Upcoming Transactions</h3>
+            <div class="table-container">
+                <table id="upcomingTable">
+                    <tr>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                </table>
+            </div>
+
             <!-- <ul>
                 <li>
                     <h4>Rent Payment</h4>
