@@ -1,3 +1,7 @@
+<!-- transactionindex.ejs
+        CREDIT: w3schools.com for for consulting html tag tutorials
+
+    -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -6,6 +10,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Budget Buddy - Transactions</title>
     <link rel="stylesheet" type="text/css" href="/css/styles.css">
+
+    <style>
+        table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+        
+        td, th {
+          border: 1px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+        }
+        
+        tr:nth-child(even) {
+          background-color: #dddddd;
+        }
+    </style>
+
 </head>
 <body>
       
@@ -33,7 +56,7 @@
                     <button class="tablinks" onclick="openTab(event, 'Income')">Income</button>
                 </div>
             
-                <!-- Tab Content -->
+                <!-- Tab Content for transaction popup-->
                 <div id="Recurring" class="tabcontent">
                     <form>
                         <div class="form-group">
@@ -126,28 +149,80 @@
             </div>
         </div>
 
-        <!-- script output anchor for loadTransactions() -->
-        <section id="plaid-alert"></section>
+        <!-- Display transactions on the page -->
 
         <section class="transaction-list">
             <h3>Recent Transactions</h3>
-            <ul>
+            <table id="transactionsTable">
+                <tr>
+                    <th>Column 1</th>
+                    <th>Column 2</th>
+                    <th>Column 3</th>
+                    <th>Column 4</th>
+                </tr>
+                <tr>
+                    <td>Record 1</td>
+                    <td>Record 2</td>
+                    <td>Record 3</td>
+                    <td>Record 4</td>
+                </tr>
+                <tr>
+                    <td>Record 1</td>
+                    <td>Record 2</td>
+                    <td>Record 3</td>
+                    <td>Record 4</td>
+                </tr>
+            </table>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+
+                    fetch('/account/displayTransactions')
+                    .then(response => {
+                            if (!response.ok) {
+                                throw new Error(` [displayTransactions]: HTTP error! Status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            populateTable(data);
+                        })
+                    .catch(error => {
+                        console.error("Could not fetch /account/displayTransactions", error);
+                    });
+
+                    function populateTable(data) {
+                        var tableBody = document.querySelector('#transactionsTable tbody');
+
+                        data.forEach(function (row) {
+                            var newRow = tableBody.insertRow();
+
+                            newRow.insertCell(0).textContent = row.amount;
+                            newRow.insertCell(1).textContent = row.description;
+                            newRow.insertCell(2).textContent = row.category;
+                            newRow.insertCell(3).textContent = row.transaction_date;
+                        })
+                    }
+                });
+            </script>
+
+            <!-- <ul>
                 <li>
                     <h4>...placeholder...</h4>
                     <br>
                 </li>
                 
-            </ul>
+            </ul> -->
         </section>
 
         <section class="transaction-list">
             <h3>Upcoming Transactions</h3>
-            <ul>
+            <!-- <ul>
                 <li>
                     <h4>Rent Payment</h4>
                     <p>....placeholder...</p>
                 </li>
-            </ul>
+            </ul> -->
         </section>
     </main>
 
@@ -155,16 +230,15 @@
         <p>&copy; 2023 Budget Buddy. All rights reserved.</p>
     </footer>
     <script>
-
         
-        // Get the popup
+        // Get the transaction popup
         var popup = document.getElementById('transactionPopup');
     
         // Get the button that opens the popup
         var btn = document.querySelector('.cta-button');
     
         // Get the <span> element that closes the popup
-        var span = document.getElementsByClassName('close-button')[0];
+        var closeButton_span = document.getElementsByClassName('close-button')[0];
     
         // When the user clicks the button, open the popup 
         btn.onclick = function() {
@@ -172,7 +246,7 @@
         }
     
         // When the user clicks on <span> (x), close the popup
-        span.onclick = function() {
+        closeButton_span.onclick = function() {
             popup.style.display = 'none';
         }
     

@@ -4,7 +4,7 @@ const mysql = require('mysql2/promise');
 async function loadTransactions(jfile, un) {
     try {
         const data = jfile;
-        const connection = require("./db");
+        const { db, query } = require('./db');
         const username = un;
         console.log(username);
         // Iterate over each account in the JSON data
@@ -17,11 +17,11 @@ async function loadTransactions(jfile, un) {
             const accountType = account.subtype; // Assuming subtype is the account type
         
             // Insert into database
-            const query = `
+            const queryString = `
                 INSERT ignore INTO accounts (account_id, user_id, account_name, account_balance, account_type)
                 VALUES (?, ?, ?, ?, ?);`;
         
-            await connection.execute(query, [accountId, userId, accountName, accountBalance, accountType]);
+            await db.execute(queryString, [accountId, userId, accountName, accountBalance, accountType]);
         }
         for (const transaction of data.transactions) {
             // Extract data
@@ -32,11 +32,11 @@ async function loadTransactions(jfile, un) {
             const description = transaction.name; // Using 'name' as the description
         
             // Insert into database
-            const query = `
+            const queryString = `
                 INSERT ignore INTO transactions (user_id, amount, transaction_date, category, description)
                 VALUES (?, ?, ?, ?, ?);`;
         
-            await connection.execute(query, [userId, amount, transactionDate, category, description]);
+            await db.execute(queryString, [userId, amount, transactionDate, category, description]);
         }
         
 

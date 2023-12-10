@@ -10,7 +10,7 @@
 
 
 //import other scripts in the same directory
-const db = require("./db");
+const { db, query } = require('./db');
 const sessionMiddleware = require("./session");
 
 //packages
@@ -42,6 +42,20 @@ const checkLoggedIn = (req, res, next) => {
   }
 
 };
+
+// ----- Our own server API
+
+router.get("/account/displayTransactions", async (req, res) => {
+  try {
+    const test_param = 1;
+    console.log(test_param);
+    const pleaseWork = await query("SELECT amount, description, category, transaction_date FROM transactions WHERE user_id = ?", [test_param]);
+    res.json(pleaseWork);
+  } catch (error) {
+    console.error("ERROR IN FETCHING TRANSACTIONS:", error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 
 // ---------- handle POSTs

@@ -20,7 +20,7 @@ const mysql = require("mysql2/promise");
 const bcrypt = require("bcrypt");
 const path = require("path");
 //import other scripts in the same directory
-const db = require("./db");
+const { db, query } = require('./db');
 const loadTransactions = require("./transactions");
 
 // initialize express.js
