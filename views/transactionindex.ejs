@@ -42,8 +42,8 @@
       
     <%- include('header.ejs') %>
 
-
     <main>
+        <button id="displayTransactions">Display Transactions</button>
         <section class="hero">
             <h2>Your Transactions</h2>
             <p>Manage and track your financial transactions.</p>
@@ -356,6 +356,7 @@
     <script>
         
         // Get the transaction popup
+
         var popup = document.getElementById('transactionPopup');
     
         // Get the button that opens the popup
@@ -405,6 +406,7 @@
         var frequencySelect = document.getElementById('incomeFrequency');
         frequencySelect.disabled = this.checked;
         });
+        
     </script>
 </body>
 </html>

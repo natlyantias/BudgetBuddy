@@ -224,6 +224,7 @@ app.get("/api/transactions", async (req, res, next) => {
         }
       } else {
         res.status(404).send("No access token found for the user");
+
       }
     }
   );

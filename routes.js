@@ -17,7 +17,7 @@ const sessionMiddleware = require("./session");
 const path = require("path");
 const express = require("express");
 const bcrypt = require("bcrypt");
-
+const mysql = require('mysql2/promise');
 // document root for web pages
 const page_dir = path.join(__dirname, "views");
 
