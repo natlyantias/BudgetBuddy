@@ -10,7 +10,7 @@
 
 
 //import other scripts in the same directory
-const db = require("./db");
+const { db, query } = require('./db');
 const sessionMiddleware = require("./session");
 
 //packages
@@ -25,9 +25,9 @@ const page_dir = path.join(__dirname, "views");
 const router = express.Router();
 
 // Prevent the user from viewing any pages that require logging in first
-const checkLoggedIn = (req, res, next) => {
+const loginRedirect = (req, res, next) => {
   // Check if user is logged in
-  if (req.session && req.session.userId) {
+  if (req.session && req.session.username) {
     console.log("Login detected");
     console.log(req.session);
     // User is logged in, proceed to the next route handler
@@ -43,6 +43,29 @@ const checkLoggedIn = (req, res, next) => {
 
 };
 
+// Prevent access to the login page when already logged in
+const alreadyLoggedIn = (req, res, next) => {
+  if (!(req.session && req.session.username)) {
+    next();
+  } else {
+    res.redirect("/settings");
+  }
+}
+
+// ----- Our own server API
+
+router.get("/account/displayTransactions", async (req, res) => {
+  try {
+    const test_param = req.session.userId;
+    console.log(test_param);
+    const pleaseWork = await query("SELECT amount, description, category, transaction_date FROM transactions WHERE user_id = ?", [test_param]);
+    res.json(pleaseWork);
+  } catch (error) {
+    console.error("ERROR IN FETCHING TRANSACTIONS:", error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 // ---------- handle POSTs
 
@@ -51,10 +74,12 @@ router.post("/login_request", async (req, res) => {
 
   console.log(req.body);
 
-  db.query("SELECT password_hash FROM users WHERE username = ?", [username],
-    (err, results) => {
-      if (results.length > 0) {
-        const user = results[0];
+  db.query(
+    "SELECT password_hash FROM users WHERE username = ?",
+    [username],
+    (err, password_hash_result) => {
+      if (password_hash_result.length > 0) {
+        const user = password_hash_result[0];
 
         console.log(user);
 
@@ -68,31 +93,43 @@ router.post("/login_request", async (req, res) => {
           }
 
           if (result) {
+            // successful login
             console.log("Passwords match!");
 
-            console.log(req.session);
+            req.session.username = username;
 
-            req.session.userId = username;
+            req.session.email = "email@domain.com";
 
-            req.session.email = 'email@domain.com';
+            req.session.userId = -1;
 
-            console.log(req.session.userId);
+            db.query(
+              "SELECT user_id FROM users WHERE username = ?",
+              [username],
+              (err, userId_result) => {
+                req.session.userId = userId_result[0].user_id;
+                console.log(req.session.userId);
 
-            res.redirect("/settings");
+                console.log(req.session);
+                console.log("Username is", req.session.username);
+                console.log("User id is", req.session.userId);
+
+                res.redirect("/settings");
+              }
+            );
           } else {
+            // wrong password for user
             console.log("Passwords do not match!");
-            res.status(500).send("error: non-matching password");
+            // res.status(500).send("Error: Non-matching username and/or password");
+            res.redirect("/login?message=Non-matching username and/or password");
           }
         });
-
       } else {
-        res.status(500).send("Internal server error");
+        // no username found (show a generic error)
+        // res.status(500).send("Error: Non-matching username and/or password");
+        res.redirect("/login?message=Non-matching username and/or password");
       }
-
     }
-
   );
-
 });
 
 router.post("/register_account", async (req, res) => {
@@ -118,7 +155,7 @@ router.post("/register_account", async (req, res) => {
       db.query(
         insertQuery,
         [username, hashed_password, email],
-        (insertErr, insertResults) => {
+        (insertErr) => {
           if (insertErr) {
             console.error("MySQL query error:", insertErr);
             res.status(500).send("Internal Server Error");
@@ -138,6 +175,10 @@ router.post("/register_account", async (req, res) => {
   });
 });
 
+router.post("/logout", (req, res) => {
+  req.session.destroy();
+  res.redirect("/login?logout=true");
+})
 
 // ---------- handle GETs
 
@@ -153,15 +194,15 @@ router.get("/aboutus", (req, res) => {
   res.render("aboutusindex.ejs", { root: page_dir });
 });
 
-router.get("/budgets", checkLoggedIn, (req, res) => {
+router.get("/budgets", loginRedirect, (req, res) => {
   res.render("budgetsindex.ejs", { root: page_dir });
 });
 
-router.get("/transactions", checkLoggedIn, (req, res) => {
+router.get("/transactions", loginRedirect, (req, res) => {
   res.render("transactionindex.ejs", { root: page_dir });
 });
 
-router.get("/reports", checkLoggedIn, (req, res) => {
+router.get("/reports", loginRedirect, (req, res) => {
   res.render("reportindex.ejs", { root: page_dir });
 });
 
@@ -169,18 +210,18 @@ router.get("/createaccount", (req, res) => {
   res.render("createaccountindex.ejs", { root: page_dir });
 });
 
-router.get("/login", (req, res) => {
+router.get("/login", alreadyLoggedIn, (req, res) => {
   const message = req.query.message;
 
   res.render("loginindex.ejs", { root: page_dir, message });
 });
 
-router.get("/settings", checkLoggedIn, (req, res) => {
+router.get("/settings", loginRedirect, (req, res) => {
 
   // Assume plaid is not connected unless a token is returned from database
   let plaidConn;
 
-  const username = req.session.userId;
+  const username = req.session.username;
 
   if (!username) {
     console.log("No username found while trying to check for Plaid connectivity");
@@ -189,10 +230,20 @@ router.get("/settings", checkLoggedIn, (req, res) => {
 
   db.query("SELECT access_token FROM users WHERE username = ?", [username], (err, results) => {
     if (err) {
-      console.err("Error:", err);
+      console.error("Error:", err);
     } else if (results.length > 0) {
-      console.log("yipee:",results[0].access_token);
-      plaidConn = false; // for testing purposes
+      const token = results[0].access_token;
+      const pattern = /null/;
+      if (pattern.test(token)) {
+        console.log("No token found.")
+        plaidConn = false;
+      } else {
+        console.log("Token found");
+        plaidConn = true;
+      }
+      console.log(token);
+      // plaidConn = true; // for testing purposes
+    
     } else {
       console.log("No Plaid token found in database");
       plaidConn = false;
@@ -200,59 +251,12 @@ router.get("/settings", checkLoggedIn, (req, res) => {
 
  console.log("Result is", plaidConn);
   // pull data from session to display in response render
-  session_id = req.session.userId;
+  session_username = req.session.username;
   session_email = req.session.email;
 
-    res.render("settingsindex.ejs", { plaidConn, session_id, root: page_dir });
+    res.render("settingsindex.ejs", { plaidConn, session_username, root: page_dir });
   });  
 
-});
-router.get("/storeTransactions", async (req, res) => {
-  try {
-    const response = await fetch('/api/transactions');
-    const d1 = await response.json();
-    const data = json.parse(d1);
-    const connection = require("./db");
-
-
-    // Iterate over each account in the JSON data
-    for (const account of data.accounts) {
-        // Extract data
-        const accountId = account.account_id; // Assuming account_id is provided in your JSON data
-        const userId = 1;
-        const accountName = account.name;
-        const accountBalance = account.balances.available;
-        const accountType = account.subtype; // Assuming subtype is the account type
-    
-        // Insert into database
-        const query = `
-            INSERT INTO accounts (account_id, user_id, account_name, account_balance, account_type)
-            VALUES (?, ?, ?, ?, ?);`;
-    
-        await connection.execute(query, [accountId, userId, accountName, accountBalance, accountType]);
-    }
-    for (const transaction of data.transactions) {
-        // Extract data
-        const userId = 1; // You might have a way to link transactions to users
-        const amount = -1*(transaction.amount);
-        const transactionDate = transaction.authorized_date;
-        const category = transaction.category[0];
-        const description = transaction.name; // Using 'name' as the description
-    
-        // Insert into database
-        const query = `
-            INSERT INTO transactions (user_id, amount, transaction_date, category, description)
-            VALUES (?, ?, ?, ?, ?);`;
-    
-        await connection.execute(query, [userId, amount, transactionDate, category, description]);
-    }
-    
-
-    console.log('Data inserted successfully');
-    await connection.end();
-} catch (error) {
-    console.error('Error:', error);
-}
 });
 
 // export all routes after they have been defined for use in app.js

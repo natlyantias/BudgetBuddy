@@ -9,6 +9,8 @@ require("dotenv").config();
 
 // required packages for mysql connectivity
 const mysql = require("mysql2");
+//enable promises for sql queries
+const util = require('util');
 
 
 // construct a connection to mysql database
@@ -20,6 +22,9 @@ const db = mysql.createConnection({
   database: process.env.DATABASE_STORE,
 });
 
+// Promisify the query method
+const query = util.promisify(db.query).bind(db);
+
 // Connect to the database
 db.connect((err) => {
   if (err) {
@@ -29,5 +34,9 @@ db.connect((err) => {
   console.log("Database connection successful!");
 });
 
+// module.exports = db;
 
-module.exports = db;
+module.exports = {
+  db,
+  query,
+};

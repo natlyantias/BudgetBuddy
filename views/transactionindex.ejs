@@ -1,3 +1,7 @@
+<!-- transactionindex.ejs
+        CREDIT: https://www.w3schools.com/html/default.asp
+
+    -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -6,11 +10,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Budget Buddy - Transactions</title>
     <link rel="stylesheet" type="text/css" href="/css/styles.css">
+
+    <style>
+
+        .table-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid black;
+            padding: 10px;
+        }
+
+        table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+        
+        td, th {
+          border: 1px solid #dddddd;
+          text-align: center;
+          padding: 5px;
+        }
+        
+        tr:nth-child(even) {
+          background-color: #dddddd;
+        }
+    </style>
+
 </head>
 <body>
       
     <%- include('header.ejs') %>
-
 
     <main>
         <button id="displayTransactions">Display Transactions</button>
@@ -34,7 +64,7 @@
                     <button class="tablinks" onclick="openTab(event, 'Income')">Income</button>
                 </div>
             
-                <!-- Tab Content -->
+                <!-- Tab Content for transaction popup-->
                 <div id="Recurring" class="tabcontent">
                     <form>
                         <div class="form-group">
@@ -126,28 +156,197 @@
                 </div>
             </div>
         </div>
-        <!-- script output anchor for loadTransactions() -->
-        <section id="plaid-alert"></section>
+
+        <!-- Display transactions on the page -->
 
         <section class="transaction-list">
             <h3>Recent Transactions</h3>
-            <ul>
+            <div class="table-container">
+                <table id="transactionsTable">
+                    <tr>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- js logic to display transactions -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+
+                    fetch('/account/displayTransactions')
+                    .then(response => {
+                            if (!response.ok) {
+                                throw new Error(` [displayTransactions]: HTTP error! Status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            populateTable(data);
+                        })
+                    .catch(error => {
+                        console.error("Could not fetch /account/displayTransactions", error);
+                    });
+
+                    function populateTable(data) {
+                        var tableBody = document.querySelector('#transactionsTable tbody');
+
+                        data.forEach(function (row) {
+                            var newRow = tableBody.insertRow();
+
+                            newRow.insertCell(0).textContent = row.amount;
+                            newRow.insertCell(1).textContent = row.description;
+                            newRow.insertCell(2).textContent = row.category;
+                            newRow.insertCell(3).textContent = row.transaction_date;
+                        })
+                    }
+                });
+            </script>
+
+            <!-- <ul>
                 <li>
                     <h4>...placeholder...</h4>
                     <br>
                 </li>
                 
-            </ul>
+            </ul> -->
         </section>
 
         <section class="transaction-list">
             <h3>Upcoming Transactions</h3>
-            <ul>
+            <div class="table-container">
+                <table id="upcomingTable">
+                    <tr>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>Description</td>
+                        <td>Category</td>
+                        <td>Date</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- <ul>
                 <li>
                     <h4>Rent Payment</h4>
                     <p>....placeholder...</p>
                 </li>
-            </ul>
+            </ul> -->
         </section>
     </main>
 
@@ -155,24 +354,16 @@
         <p>&copy; 2023 Budget Buddy. All rights reserved.</p>
     </footer>
     <script>
-            async function loadTransactions() {
-            try {
-                const response = await fetch("/storeTransactions")
-            } catch (error) {
-                console.error('Failed to load transactions:', error);
+        
+        // Get the transaction popup
 
-            }
-            }
-
-            loadTransactions();
-        // Get the popup
         var popup = document.getElementById('transactionPopup');
     
         // Get the button that opens the popup
         var btn = document.querySelector('.cta-button');
     
         // Get the <span> element that closes the popup
-        var span = document.getElementsByClassName('close-button')[0];
+        var closeButton_span = document.getElementsByClassName('close-button')[0];
     
         // When the user clicks the button, open the popup 
         btn.onclick = function() {
@@ -180,7 +371,7 @@
         }
     
         // When the user clicks on <span> (x), close the popup
-        span.onclick = function() {
+        closeButton_span.onclick = function() {
             popup.style.display = 'none';
         }
     

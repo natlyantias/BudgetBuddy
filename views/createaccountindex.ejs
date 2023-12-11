@@ -85,7 +85,7 @@
         a {
             color: #007bff;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: normal;
         }
 
         a:hover {
@@ -97,6 +97,10 @@
             padding: 1rem;
             background-color: #333;
             color: #fff;
+        }
+
+        .bold {
+            font-weight: bold;
         }
     </style> 
 </head>
@@ -121,9 +125,9 @@
                 <label for="confirm-password">Confirm Password</label>
                 <input type="password" id="confirm-password" name="confirm-password" required>
 
-                <button type="submit">Get Started</button>
+                <button class="bold" type="submit">Get Started</button>
             </form>
-            <p>Already have an account? <a href="login">Log In</a></p>
+            <p>Already have an account? <a class="bold" href="login">Log In</a></p>
         </section>
     </main>
 

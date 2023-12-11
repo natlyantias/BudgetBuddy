@@ -20,6 +20,8 @@
           },
         });
         await getBalance();
+        await getTransactions();
+        // TODO: refresh the page once plaid account is connected
       },
       onEvent: (eventName, metadata) => {
         console.log("Event:", eventName);
@@ -42,20 +44,23 @@
     const response = await fetch("/api/data", {
       method: "GET",
     });
-    const data = await response.json();
+  };
 
-    //Render response data
-    const pre = document.getElementById("response");
-    pre.textContent = JSON.stringify(data, null, 2);
-    pre.style.background = "#F6F6F6";
+  const getTransactions = async function() {
+    const response = await fetch("/api/transactions", {
+      method: "GET",
+    });
+
   };
 
   // Check whether account is connected
   const getStatus = async function () {
     const account = await fetch("/api/is_account_connected");
     const connected = await account.json();
+
     if (connected.status == true) {
       getBalance();
+      // getTransactions();
     }
   };
 
