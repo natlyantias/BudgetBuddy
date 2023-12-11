@@ -172,7 +172,7 @@ app.get("/api/transactions", async (req, res, next) => {
     } else if (result && result.length > 0) {
       const access_token = result[0].access_token;
 
-      const startDate = '2023-01-01'; // Adjust as needed
+      const startDate = '2010-01-01'; // Adjust as needed
       const endDate = '2023-12-31'; // Adjust as needed
 
       try {
@@ -222,6 +222,7 @@ app.get("/api/is_account_connected", async (req, res, next) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
 
 
 
