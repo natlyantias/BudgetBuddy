@@ -1,3 +1,6 @@
+<!-- https://userfront.com/guide/build-logout-button-html 
+
+-->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -117,8 +120,8 @@
     </style> 
 </head>
 <body>
+    
     <%- include('header.ejs') %>
-
 
     <main>
         <section class="profile">
@@ -170,6 +173,12 @@
     <strong>Link account</strong>
 </button>
 
+        </section>
+
+        <section class="logout">
+            <form action="/logout" method="post">
+            <button id="logout-button" class="cta-button" type="submit"><strong>Logout</strong></button>
+            </form>
         </section>
 
         <section class="password">

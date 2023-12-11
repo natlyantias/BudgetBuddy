@@ -155,7 +155,7 @@ router.post("/register_account", async (req, res) => {
       db.query(
         insertQuery,
         [username, hashed_password, email],
-        (insertErr, insertResults) => {
+        (insertErr) => {
           if (insertErr) {
             console.error("MySQL query error:", insertErr);
             res.status(500).send("Internal Server Error");
@@ -175,6 +175,10 @@ router.post("/register_account", async (req, res) => {
   });
 });
 
+router.post("/logout", (req, res) => {
+  req.session.destroy();
+  res.redirect("/login?logout=true");
+})
 
 // ---------- handle GETs
 
@@ -228,8 +232,18 @@ router.get("/settings", loginRedirect, (req, res) => {
     if (err) {
       console.error("Error:", err);
     } else if (results.length > 0) {
-      console.log("yipee:",results[0].access_token);
-      plaidConn = false; // for testing purposes
+      const token = results[0].access_token;
+      const pattern = /null/;
+      if (pattern.test(token)) {
+        console.log("No token found.")
+        plaidConn = false;
+      } else {
+        console.log("Token found");
+        plaidConn = true;
+      }
+      console.log(token);
+      // plaidConn = true; // for testing purposes
+    
     } else {
       console.log("No Plaid token found in database");
       plaidConn = false;

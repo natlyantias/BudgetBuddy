@@ -21,6 +21,7 @@
         });
         await getBalance();
         await getTransactions();
+        // TODO: refresh the page once plaid account is connected
       },
       onEvent: (eventName, metadata) => {
         console.log("Event:", eventName);
@@ -59,7 +60,7 @@
 
     if (connected.status == true) {
       getBalance();
-      getTransactions();
+      // getTransactions();
     }
   };
 
