@@ -10,6 +10,8 @@
 
 
 //import other scripts in the same directory
+// NOTE: 'db' is used for older query code that still works,
+//       'query' is the new promisified sql query code
 const { db, query } = require('./db');
 const sessionMiddleware = require("./session");
 
