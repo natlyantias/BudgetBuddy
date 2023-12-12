@@ -30,10 +30,9 @@ const loginRedirect = (req, res, next) => {
   if (req.session && req.session.username) {
     console.log("Login detected");
     console.log(req.session);
-    // User is logged in, proceed to the next route handler
+    // proceed to the next route handler (defined in routes where this function is passed)
     next();
   } else {
-    // User is not logged in, redirect to the login page
     console.log("No login detected");
     console.log(req.session);
     //const nologin_msg = "Please log in first.";
@@ -58,6 +57,7 @@ router.get("/account/displayTransactions", async (req, res) => {
   try {
     const test_param = req.session.userId;
     console.log(test_param);
+    // promisified queries seem to be needed for api routes
     const pleaseWork = await query("SELECT amount, description, category, transaction_date FROM transactions WHERE user_id = ?", [test_param]);
     res.json(pleaseWork);
   } catch (error) {
@@ -74,6 +74,7 @@ router.post("/login_request", async (req, res) => {
 
   console.log(req.body);
 
+  // use parameterized queries for better security
   db.query(
     "SELECT password_hash FROM users WHERE username = ?",
     [username],
@@ -233,6 +234,7 @@ router.get("/settings", loginRedirect, (req, res) => {
       console.error("Error:", err);
     } else if (results.length > 0) {
       const token = results[0].access_token;
+      // use regex to determine if a key has been added to the current user already
       const pattern = /null/;
       if (pattern.test(token)) {
         console.log("No token found.")
