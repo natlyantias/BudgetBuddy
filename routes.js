@@ -14,6 +14,7 @@
 //       'query' is the new promisified sql query code
 const { db, query } = require('./db');
 const sessionMiddleware = require("./session");
+const mysql = require('mysql2/promise');
 
 //packages
 const path = require("path");
@@ -53,7 +54,9 @@ const alreadyLoggedIn = (req, res, next) => {
   } else {
     res.redirect("/settings");
   }
-}
+};
+
+
 
 // ----- Our own server API
 
@@ -78,6 +81,108 @@ router.get("/account/displayTransactions", async (req, res) => {
   } catch (error) {
     console.error("ERROR IN FETCHING TRANSACTIONS:", error);
     res.status(500).send("Internal Server Error");
+  }
+});
+// Function to find the nearest frequency
+function findNearest(values, targets) {
+  return values.map(value => {
+      return targets.reduce((prev, curr) => 
+          (Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev));
+  });
+}
+
+// Function to categorize pay frequency
+function categorizePayFrequency(daysBetween) {
+  const targets = [7, 14, 30];
+  let categorized = findNearest(daysBetween, targets);
+  let frequencyCounts = categorized.reduce((acc, curr) => {
+      acc[curr] = (acc[curr] || 0) + 1;
+      return acc;
+  }, {});
+
+  let mostFrequent = Object.keys(frequencyCounts).reduce((a, b) => 
+      frequencyCounts[a] > frequencyCounts[b] ? a : b);
+
+  return parseInt(mostFrequent);
+}
+
+// Function to estimate monthly salary
+function estimateMonthlySalary(transactions) {
+  if (!transactions || transactions.length === 0) {
+      console.log("No transactions found");
+      return 0;
+  }
+
+  let daysBetween = transactions.map(t => t.days_between).filter(Boolean);
+  let payFrequency = categorizePayFrequency(daysBetween);
+
+  let totalIncome = transactions.reduce((sum, record) => {
+      let amount = parseFloat(record.amount); // Ensure amount is a number
+      return sum + (isNaN(amount) ? 0 : amount);
+  }, 0);
+
+  let averageIncome = totalIncome / transactions.length;
+
+  console.log("Total Income:", totalIncome, "Transactions Count:", transactions.length);
+
+  switch (payFrequency) {
+      case 7: // Weekly
+          return averageIncome * 4;
+      case 14: // Bi-Weekly
+          return averageIncome * 2;
+      case 30: // Monthly
+          return averageIncome;
+      default:
+          console.log("Undefined pay frequency:", payFrequency);
+          return 0; // Undefined frequency
+  }
+}
+router.get("/account/getDays", async (req, res) => {
+  try {
+    const test_param = req.session.userId;
+    const transactions = await query("SELECT transaction_id, amount, transaction_date, DATEDIFF(transaction_date, LAG(transaction_date, 1) OVER (ORDER BY transaction_date)) AS days_between FROM transactions WHERE category = 'Transfer' AND description LIKE '%Salary%' AND user_id = ? ORDER BY transaction_date;", [test_param]);
+    const monthlySalary = estimateMonthlySalary(transactions);
+    console.log(monthlySalary);
+    res.json({ transactions, monthlySalary });
+  } catch (error) {
+    console.error("ERROR IN FETCHING TRANSACTIONS:", error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+router.get("/account/getSums", async (req, res) => {
+  try {
+    const test_param = req.session.userId;
+    console.log(test_param);
+    const pleaseWork = await query("select category, sum(amount) as total_amount from transactions where user_id= ? group by category;", [test_param]);
+    res.json(pleaseWork);
+  } catch (error) {
+    console.error("ERROR IN FETCHING TRANSACTIONS:", error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+router.get('/budgetData', async (req, res) => {
+  try {
+      console.log("you are here");
+      const userId = req.session.userId;
+      const currentMonth = new Date().toISOString().slice(0, 7) + '-01';
+
+      const queryString = `
+          SELECT food_drinks_budget, entertainment_budget, travel_budget, savings_budget 
+          FROM budgets 
+          WHERE user_id = ? AND budget_month = ?
+      `;
+      const [rows, fields] = await query(queryString, [userId, currentMonth]);
+
+      if (rows.length > 0) {
+          res.json(rows[0]);
+          console.log(rows[0]);
+      } else {
+          res.status(404).send('Budget data not found for the current month.');
+      }
+  } catch (error) {
+      console.error('Database error:', error);
+      res.status(500).send('Internal Server Error');
   }
 });
 

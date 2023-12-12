@@ -10,38 +10,347 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Budget Buddy - Budgets</title>
     <link rel="stylesheet" type="text/css" href="/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body>
       
     <%- include('header.ejs') %>
 
 
-    <main>
+    <main>  
         <section class="hero">
             <h2>Your Budgets</h2>
-            <p>Manage your finances with personalized budgets.</p>
+            <div id="salaryInfo"></div>
+            <p>Create the budgets that you want to see using the button bellow.</p>
             <a href="#" class="cta-button">Create Budget</a>
         </section>
+        <div id="budgetPopup" class="popup">
+            <div class="popup-content">
+                <span class="close-button">&times;</span>
+                <h3>Set Budgets</h3>
+                
+                <!-- Tab Links -->
+                <div class="tab">
+                    <button class="tablinks" onclick="openTab(event, 'FoodDrinks')">Food & Drinks</button>
+                    <button class="tablinks" onclick="openTab(event, 'Entertainment')">Entertainment</button>
+                    <button class="tablinks" onclick="openTab(event, 'Travel')">Travel</button>
+                    <button class="tablinks" onclick="openTab(event, 'Savings')">Savings</button>
+                </div>
+            
+                <div id="FoodDrinks" class="tabcontent">
+                    <form>
+                        <div class="form-group">
+                            <label for="foodDrinksAmount">Monthly Budget for Food and Drinks:</label>
+                            <input type="number" id="foodDrinksAmount" name="foodDrinksAmount" placeholder="Enter amount">
+                        </div>
+                        <div class="form-group">
+                            <button type="submit">Create Budget</button>
+                        </div>
+                        <div class="remainingSalary"></div>
+                    </form>
+                </div>
+            
+                <div id="Entertainment" class="tabcontent">
+                    <form>
+                        <div class="form-group">
+                            <label for="entertainmentAmount">Monthly Budget for Entertainment:</label>
+                            <input type="number" id="entertainmentAmount" name="entertainmentAmount" placeholder="Enter amount">
+                        </div>
+                        <div class="form-group">
+                            <button type="submit">Create Budget</button>
+                        </div>
+                        <div class="remainingSalary"></div>
+                    </form>
+                </div>
+            
+                <div id="Travel" class="tabcontent">
+                    <form>
+                        <div class="form-group">
+                            <label for="travelAmount">Monthly Budgey for Travel:</label>
+                            <input type="number" id="travelAmount" name="travelAmount" placeholder="Enter amount">
+                        </div>
+                        <div class="form-group">
+                            <button type="submit">Create Budget</button>
+                        </div>
+                        <div class="remainingSalary"></div>
+                    </form>
+                </div>
+                
+                <div id="Savings" class="tabcontent">
+                    <form>
+                        <div class="form-group">
+                            <label for="savingsAmount">What is your desired amount of savings for this month:</label>
+                            <input type="number" id="savingsAmount" name="savingsAmount" placeholder="Enter amount">
+                        </div>
+                        <div class="form-group">
+                            <button type="submit">Create Budget</button>
+                        </div>
+                        <div class="remainingSalary"></div>
+                    </form>
+                </div>
+                <button id="submitBudgets" type="button">Submit Budget</button>
+            </div>
 
-        <section class="budget-list">
-            <h3>Active Budgets</h3>
-            <ul>
-                <li>
-                    <h4>Monthly Expenses</h4>
-                    <p>...placeholder...</p>
-                </li>
-                <li>
-                    <h4>Vacation Savings</h4>
-                    <p>...placeholder...</p>
-                </li>
-                <li>
-                    <h4>Emergency Fund</h4>
-                    <p>...placeholder...</p>
-                </li>
-            </ul>
-        </section>
+        </div>
+        <div id="budgetChartContainer">
+            <canvas id="budgetChart"></canvas>
+        </div>
 
+        <script>
+            async function loadSalaryData() {
+                try {
+                    const response = await fetch('/account/getDays');
+                    const data = await response.json();
+    
+                    const salaryDiv = document.getElementById('salaryInfo');
+                    salaryDiv.innerHTML = `
+                        <p>Your Monthly Salary Estimate is: $${data.monthlySalary.toFixed(2)}</p>
+                    `;
+                    // You can also display individual transactions here if needed
+                } catch (error) {
+                    console.error('Error fetching salary data:', error);
+                }
+            }
+    
+            loadSalaryData();
+        </script>
+            <script>
         
+                // Get the transaction popup
+                var popup = document.getElementById('budgetPopup');
+            
+                // Get the button that opens the popup
+                var btn = document.querySelector('.cta-button');
+            
+                // Get the <span> element that closes the popup
+                var closeButton_span = document.getElementsByClassName('close-button')[0];
+            
+                // When the user clicks the button, open the popup 
+                btn.onclick = function() {
+                    popup.style.display = 'block';
+                }
+            
+                // When the user clicks on <span> (x), close the popup
+                closeButton_span.onclick = function() {
+                    popup.style.display = 'none';
+                }
+            
+                // When the user clicks anywhere outside of the popup, close it
+                window.onclick = function(event) {
+                    if (event.target == popup) {
+                        popup.style.display = 'none';
+                    }
+                }
+                
+                function openTab(evt, tabName) {
+                // Declare all variables
+                var i, tabcontent, tablinks;
+        
+                // Get all elements with class="tabcontent" and hide them
+                tabcontent = document.getElementsByClassName("tabcontent");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+        
+                // Get all elements with class="tablinks" and remove the class "active"
+                tablinks = document.getElementsByClassName("tablinks");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+        
+                // Show the current tab, and add an "active" class to the button that opened the tab
+                document.getElementById(tabName).style.display = "block";
+                evt.currentTarget.className += " active";
+                };
+            </script>
+            <script>
+    // Global variables for monthly and remaining salary
+    let monthlySalary = 0;
+    let remainingSalary = 0;
+
+    // Object to store budget data for each category
+    let budgets = {
+        food_drinks_budget: null,
+        entertainment_budget: null,
+        travel_budget: null,
+        savings_budget: null
+    };
+
+    // Function to fetch and display the monthly salary
+    async function loadSalaryData() {
+        try {
+            const response = await fetch('/account/getDays');
+            const data = await response.json();
+
+            monthlySalary = data.monthlySalary;
+            remainingSalary = data.monthlySalary; // Initialize remaining salary
+
+            const salaryDiv = document.getElementById('salaryInfo');
+            salaryDiv.innerHTML = `<p>Your Monthly Salary Estimate is: $${monthlySalary.toFixed(2)}</p>`;
+
+            // Update remaining salary display
+            updateRemainingSalary();
+        } catch (error) {
+            console.error('Error fetching salary data:', error);
+        }
+    }
+
+    // Call the function to load and display salary data
+    loadSalaryData();
+
+    // Function to update remaining salary display
+    function updateRemainingSalary() {
+        document.querySelectorAll('.remainingSalary').forEach(div => {
+            div.innerHTML = `<p>Remaining Salary to Allocate: $${remainingSalary.toFixed(2)}</p>`;
+        });
+    }
+
+    // Event listeners for budget form submissions
+    document.querySelectorAll('.tabcontent form').forEach(form => {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const amountInput = this.querySelector('input[type="number"]');
+            const amount = parseFloat(amountInput.value);
+            const budgetCategory = amountInput.getAttribute('name');
+
+            if (isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid amount.');
+                return;
+            }
+            
+            if (amount > remainingSalary) {
+                alert('Not enough remaining salary to allocate this amount.');
+                return;
+            }
+
+            remainingSalary -= amount;
+            updateRemainingSalary();
+
+            // Map input name to database column name
+            const categoryMapping = {
+                'foodDrinksAmount': 'food_drinks_budget',
+                'entertainmentAmount': 'entertainment_budget',
+                'travelAmount': 'travel_budget',
+                'savingsAmount': 'savings_budget'
+            };
+
+            const dbColumn = categoryMapping[budgetCategory];
+            if (dbColumn) {
+                budgets[dbColumn] = amount;
+            }
+        });
+    });
+
+
+    // Function to send budget data to the server
+    function sendBudgetToServer(budgetMonth) {
+    const budgetData = { ...budgets, budget_month: budgetMonth };
+
+    console.log("Sending data to server:", JSON.stringify(budgetData));
+    
+
+    fetch('/budget', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // Add your authentication headers if needed
+        },
+        body: JSON.stringify(budgetData),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+        // Handle any follow-up actions here
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+}
+document.getElementById('submitBudgets').addEventListener('click', function() {
+    const budgetMonth = getFormattedCurrentMonth();
+    sendBudgetToServer(budgetMonth);
+});
+
+    // Function to get the current month in YYYY-MM-DD format
+    function getFormattedCurrentMonth() {
+        const currentDate = new Date();
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        return `${year}-${month}-01`;
+    }
+    </script>
+
+
+
+
+    <script>
+async function fetchBudgetData() {
+    try {
+        const response = await fetch('/budgetData');
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching budget data:', error);
+        return null; // or handle this error appropriately
+    }
+}
+
+
+function renderChart(data) {
+    const ctx = document.getElementById('budgetChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Food & Drinks', 'Entertainment', 'Travel', 'Savings', 'Remaining'],
+            datasets: [{
+                label: 'Budget Allocation',
+                data: [
+                    data.food_drinks_budget,
+                    data.entertainment_budget,
+                    data.travel_budget,
+                    data.savings_budget,
+                    data.remaining // Calculate remaining amount
+                ],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)', // Example colors
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+        }
+    });
+}
+
+async function loadChartData() {
+    const budgetData = await fetchBudgetData();
+    if (budgetData) {
+        renderChart(budgetData);
+    } else {
+        console.error('No budget data available');
+        // Handle this situation appropriately
+    }
+}
+
+loadChartData();
+    </script>
     </main>
 
     <footer>

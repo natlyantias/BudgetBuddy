@@ -165,21 +165,24 @@ footer {
 }
 
 .form-group {
+    display: flex; /* Use flexbox to align label and input */
+    flex-direction: column; /* Stack them vertically */
     margin-bottom: 15px;
+    align-items: flex-start; /* Align to the start of the flex container */
 }
 
 .form-group label {
-    display: block;
     margin-bottom: 5px;
 }
 
 .form-group input[type="number"],
 .form-group input[type="date"],
 .form-group input[type="text"] {
-    width: 100%;
+    width: 100%; /* Full width */
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 
 .form-group button {
@@ -193,4 +196,10 @@ footer {
 
 .form-group button:hover {
     background-color: #45a049;
+}
+
+#budgetChartContainer {
+    width: 400px;
+    height: 400px;
+    margin: auto;
 }
