@@ -16,6 +16,7 @@ const sessionMiddleware = require("./session");
 //packages
 const path = require("path");
 const express = require("express");
+const moment = require('moment');
 const bcrypt = require("bcrypt");
 const mysql = require('mysql2/promise');
 // document root for web pages
@@ -24,7 +25,6 @@ const page_dir = path.join(__dirname, "views");
 //middleware
 const router = express.Router();
 
-const moment = require('moment');
 
 // Prevent the user from viewing any pages that require logging in first
 const loginRedirect = (req, res, next) => {
@@ -68,6 +68,7 @@ router.get("/account/displayTransactions", async (req, res) => {
       amount: transaction.amount,
       description: transaction.description,
       category: transaction.category,
+      // format the date in this column
       transaction_date: moment(transaction.transaction_date).format('YYYY-MM-DD'),
     }));
     
@@ -82,7 +83,8 @@ router.get("/account/displayTransactions", async (req, res) => {
 // ---------- handle POSTs
 
 router.post("/login_request", async (req, res) => {
-  const { username, password } = req.body;
+  const username = req.body.username;
+  const password = req.body.password;
 
   console.log(req.body);
 
@@ -111,8 +113,11 @@ router.post("/login_request", async (req, res) => {
 
             req.session.username = username;
 
+            // TODO: fetch email from db to store in session
             req.session.email = "email@domain.com";
 
+            // TODO: Handle if this value actually passes
+            // Fallback value to prevent 'undefined' error
             req.session.userId = -1;
 
             db.query(
@@ -146,11 +151,14 @@ router.post("/login_request", async (req, res) => {
 });
 
 router.post("/register_account", async (req, res) => {
-  const { username, password, email } = req.body;
+  const username = req.body.username;
+  const email = req.body.email;
+  const password = req.body.password;
 
   const hashed_password = await bcrypt.hash(password, 10);
 
-  console.log(hashed_password);
+  // console.log(hashed_password);
+  console.log("Registration password has been hashed");
 
   // Check if the username is already taken
   db.query("SELECT * FROM users WHERE username = ?", [username], (checkErr, checkResults) => {
@@ -263,7 +271,7 @@ router.get("/settings", loginRedirect, (req, res) => {
       plaidConn = false;
     }
 
- console.log("Result is", plaidConn);
+ console.log("Plaid connected:", plaidConn);
   // pull data from session to display in response render
   session_username = req.session.username;
   session_email = req.session.email;

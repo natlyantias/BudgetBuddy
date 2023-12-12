@@ -7,6 +7,10 @@
       localStorage.setItem("link_token", linkToken);
       return linkToken;
     };
+/*
+----------link.js
+----------Sourced from Plaid's Tiny Quickstart Tutorial: https://github.com/plaid/tiny-quickstart
+*/
 
     // Initialize Link
     const handler = Plaid.create({

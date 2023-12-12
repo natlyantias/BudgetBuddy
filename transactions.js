@@ -1,3 +1,7 @@
+/*
+----------transactions.js
+---------- Move plaid data into database
+*/
 
 const mysql = require('mysql2/promise');
 
@@ -46,4 +50,5 @@ async function loadTransactions(jfile, un) {
         console.error('Error:', error);
     }
     }
+
 module.exports = loadTransactions;

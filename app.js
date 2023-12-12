@@ -13,14 +13,9 @@ const port = 80;
 // utilize environment variables
 require("dotenv").config();
 // import packages
-// const bodyParser = require("body-parser");
-// const MySQLStore = require("express-mysql-session")(session);
 const express = require("express");
-// const mysql = require("mysql2/promise");
-// const bcrypt = require("bcrypt");
-// const path = require("path");
 //import other scripts in the same directory
-const { db, query } = require('./db');
+const { db, query } = require("./db");
 const loadTransactions = require("./transactions");
 
 // initialize express.js
@@ -224,7 +219,6 @@ app.get("/api/transactions", async (req, res, next) => {
         }
       } else {
         res.status(404).send("No access token found for the user");
-
       }
     }
   );
