@@ -124,69 +124,22 @@
     <%- include('header.ejs') %>
 
     <main>
-        <section class="profile">
-            <h2>Your Profile</h2>
-            <div class="profile-info">
-                <h3>Username: <span><%= session_username %></span></h3>
-                <h3
-                style="
-                margin: 0;
-                ">Email: <span><%= session_email %></span></h3>
-                <!-- <h3>Name: <span>John Doe</span></h3> -->    
-                <button class="cta-button" disabled style="
-                margin-top: 10px;
-                margin-bottom: 10px;
-                ">Edit Profile</button>
-            </div>
-        </section>
 
-        <section class="plaid-connect">
-            <% if (plaidConn) { %>
-            <h3>Already Connected to Plaid</h3>
-            <button
-    type="button"
-    class="btn btn-primary btn-dark btn-lg"
-    style="
-      border: 1px solid black;
-      border-radius: 5px;
-      background: gray;
-      height: 48px;
-      width: 155px;
-      margin-top: 5px; 
-      margin-left: 10;
-      color: white;
-      font-size: 18px;
-    ">
-            <% } else { %>
-                <h3>Connect to Plaid</h3>
-            
-            <button
-    type="button"
-    id="link-account"
-    class="btn btn-primary btn-dark btn-lg"
-    style="
-      border: 1px solid black;
-      border-radius: 5px;
-      background: black;
-      height: 48px;
-      width: 155px;
-      margin-top: 5px; 
-      margin-left: 10;
-      color: white;
-      font-size: 18px;
-    ">
-    <% } %>
-    <strong>Link account</strong>
-</button>
+        <section class="password">
+            <h2>Change Password</h2>
+            <form action="#" method="post">
+                <label for="current-password">Current Password</label>
+                <input type="password" id="current-password" name="current-password" required>
 
-        </section>
+                <label for="new-password">New Password</label>
+                <input type="password" id="new-password" name="new-password" required>
 
-        <section class="logout">
-            <form action="/logout" method="post">
-            <button id="logout-button" class="cta-button" type="submit"><strong>Logout</strong></button>
+                <label for="confirm-password">Confirm New Password</label>
+                <input type="password" id="confirm-password" name="confirm-password" required>
+
+                <button type="submit" class="cta-button">Change Password</button>
             </form>
         </section>
-
     </main>
 
     <footer>
