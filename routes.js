@@ -220,7 +220,7 @@ router.post("/login_request", async (req, res) => {
 
             req.session.username = username;
 
-            // TODO: fetch email from db to store in session
+            // Placeholder for email
             req.session.email = "email@domain.com";
 
             // TODO: Handle if this value actually passes
@@ -228,15 +228,17 @@ router.post("/login_request", async (req, res) => {
             req.session.userId = -1;
 
             db.query(
-              "SELECT user_id FROM users WHERE username = ?",
+              "SELECT user_id, email FROM users WHERE username = ?",
               [username],
-              (err, userId_result) => {
-                req.session.userId = userId_result[0].user_id;
+              (err, userData_result) => {
+                req.session.userId = userData_result[0].user_id;
+                req.session.email = userData_result[0].email;
                 console.log(req.session.userId);
 
                 console.log(req.session);
-                console.log("Username is", req.session.username);
-                console.log("User id is", req.session.userId);
+                // console.log("Username is", req.session.username);
+                // console.log("User id is", req.session.userId);
+                // console.log("Email is", req.session.email);
 
                 res.redirect("/settings");
               }
