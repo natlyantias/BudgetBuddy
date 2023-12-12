@@ -24,6 +24,8 @@ const page_dir = path.join(__dirname, "views");
 //middleware
 const router = express.Router();
 
+const moment = require('moment');
+
 // Prevent the user from viewing any pages that require logging in first
 const loginRedirect = (req, res, next) => {
   // Check if user is logged in
@@ -42,7 +44,7 @@ const loginRedirect = (req, res, next) => {
 
 };
 
-// Prevent access to the login page when already logged in
+// Prevent access to the login and register pages when already logged in
 const alreadyLoggedIn = (req, res, next) => {
   if (!(req.session && req.session.username)) {
     next();
@@ -55,14 +57,24 @@ const alreadyLoggedIn = (req, res, next) => {
 
 router.get("/account/displayTransactions", async (req, res) => {
   try {
-    const test_param = req.session.userId;
-    console.log(test_param);
+    const user_id = req.session.userId;
+    console.log(user_id);
     // promisified queries seem to be needed for api routes
-    const pleaseWork = await query("SELECT amount, description, category, transaction_date FROM transactions WHERE user_id = ?", [test_param]);
-    res.json(pleaseWork);
+    const transactions_result = await query("SELECT amount, description, category, transaction_date FROM transactions WHERE user_id = ? ORDER BY transaction_date DESC", [user_id]);
+    
+    // store result in an iterable object to format the 'transaction_date' column
+    const transactionDatesFormatted = transactions_result.map(transaction => ({
+      // keep the other columns the same
+      amount: transaction.amount,
+      description: transaction.description,
+      category: transaction.category,
+      transaction_date: moment(transaction.transaction_date).format('YYYY-MM-DD'),
+    }));
+    
+    res.json(transactionDatesFormatted);
   } catch (error) {
     console.error("ERROR IN FETCHING TRANSACTIONS:", error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).send("Internal Server Error");
   }
 });
 
@@ -207,7 +219,7 @@ router.get("/reports", loginRedirect, (req, res) => {
   res.render("reportindex.ejs", { root: page_dir });
 });
 
-router.get("/createaccount", (req, res) => {
+router.get("/createaccount", alreadyLoggedIn, (req, res) => {
   res.render("createaccountindex.ejs", { root: page_dir });
 });
 
@@ -259,6 +271,10 @@ router.get("/settings", loginRedirect, (req, res) => {
     res.render("settingsindex.ejs", { plaidConn, session_username, root: page_dir });
   });  
 
+});
+
+router.get("/editprofile", (req, res) => {
+  res.render("editprofile.ejs", { root: page_dir });
 });
 
 // export all routes after they have been defined for use in app.js
