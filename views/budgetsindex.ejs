@@ -21,7 +21,9 @@
     <main>  
         <section class="hero">
             <h2>Your Budgets</h2>
+            <br>
             <div id="salaryInfo"></div>
+            <br>
             <p>Create the budgets that you want to see using the button bellow.</p>
             <a href="#" class="cta-button">Create Budget</a>
         </section>
@@ -96,25 +98,17 @@
         <div id="budgetChartContainer">
             <canvas id="budgetChart"></canvas>
         </div>
+        <div id="budgetPercentages" class="hidden">
+            <p>Food & Drinks: <span id="foodDrinksPercentage"></span></p>
+            <p>Entertainment: <span id="entertainmentPercentage"></span></p>
+            <p>Travel: <span id="travelPercentage"></span></p>
+            <p>Savings: <span id="savingsPercentage"></span></p>
+            <p>Remaining: <span id="remainingPercentage"></span></p>
+            <p>Payments: <span id="paymentPercentage"></span></p>
+        </div>
+        <div id="budgetFeedback" class="feedback hidden"></div>
 
-        <script>
-            async function loadSalaryData() {
-                try {
-                    const response = await fetch('/account/getDays');
-                    const data = await response.json();
-    
-                    const salaryDiv = document.getElementById('salaryInfo');
-                    salaryDiv.innerHTML = `
-                        <p>Your Monthly Salary Estimate is: $${data.monthlySalary.toFixed(2)}</p>
-                    `;
-                    // You can also display individual transactions here if needed
-                } catch (error) {
-                    console.error('Error fetching salary data:', error);
-                }
-            }
-    
-            loadSalaryData();
-        </script>
+        
             <script>
         
                 // Get the transaction popup
@@ -268,9 +262,11 @@
         console.error('Error:', error);
     });
 }
-document.getElementById('submitBudgets').addEventListener('click', function() {
+document.getElementById('submitBudgets').addEventListener('click', async function() {
     const budgetMonth = getFormattedCurrentMonth();
-    sendBudgetToServer(budgetMonth);
+    await sendBudgetToServer(budgetMonth); // Wait for the server to save the budget data
+    await loadChartData(); // Then load and display the chart
+    popup.style.display = 'none';
 });
 
     // Function to get the current month in YYYY-MM-DD format
@@ -298,36 +294,133 @@ async function fetchBudgetData() {
         return null; // or handle this error appropriately
     }
 }
+async function fetchMonthlySalary() {
+    try {
+        const response = await fetch('/account/getDays');
+        const data = await response.json();
+        console.log(data)
+        return data.monthlySalary; // Return the monthly salary as a number
+    } catch (error) {
+        console.error('Error fetching salary data:', error);
+        return 0; // Return 0 or some default value in case of an error
+    }
+}
+async function fetchPaymentTotal() {
+    try {
+        const response = await fetch('/account/paymentTotal');
+        const data = await response.json();
+        const result = parseFloat(data[0].total) * -1;
+        return (result); // Return the total payment as a number
+    } catch (error) {
+        console.error('Error fetching payment data:', error);
+        return 0; // Return 0 or some default value in case of an error
+    }
+}
+function provideBudgetFeedback(percentages) {
+    let feedback = "";
+
+    // Assuming you have variables like foodDrinksPercentage, entertainmentPercentage, etc.
+    // Check food and drinks budget
+    if (percentages.foodDrinks > 15) {
+        feedback += "Consider reducing your spending on food and drinks to save more.\n";
+    } else {
+        feedback += "Your spending on food and drinks is within a healthy range.\n";
+    }
+
+    // Check entertainment budget
+    if (percentages.entertainment > 10) {
+        feedback += "You might be spending a bit too much on entertainment. Look for ways to enjoy free or less expensive activities.\n";
+    } else {
+        feedback += "Your entertainment spending is well-managed.\n";
+    }
+
+    // Check travel budget
+    if (percentages.travel > 10) {
+        feedback += "Your travel expenses are quite high. Consider budget-friendly travel options.\n";
+    } else {
+        feedback += "You're doing a great job in managing your travel costs.\n";
+    }
+
+    // Check savings
+    if (percentages.savings < 20) {
+        feedback += "It's recommended to save at least 20% of your income. Look for opportunities to increase your savings.\n";
+    } else {
+        feedback += "Excellent job on hitting the savings goal!\n";
+    }
+
+    // Check payments
+    if (percentages.payment > 50) {
+        feedback += "Your payments are taking up a large portion of your income. Explore options to reduce these expenses.\n";
+    } else {
+        feedback += "Your payments are well under control.\n";
+    }
+
+    return feedback;
+
+    return feedback;
+}
 
 
-function renderChart(data) {
+async function renderChart(data) {
     const ctx = document.getElementById('budgetChart').getContext('2d');
+    const salary = await fetchMonthlySalary(); // Await the salary value
+    const paymentTotal = await fetchPaymentTotal();
+    console.log(paymentTotal)
+    // Convert budget data to numbers
+    const foodDrinksBudget = Number(data.food_drinks_budget || 0);
+    const entertainmentBudget = Number(data.entertainment_budget || 0);
+    const travelBudget = Number(data.travel_budget || 0);
+    const savingsBudget = Number(data.savings_budget || 0);
+
+    // Calculate total budget used and remaining
+    const totalBudgetUsed = foodDrinksBudget + entertainmentBudget + travelBudget + savingsBudget+ paymentTotal;
+
+    const remaining = salary - totalBudgetUsed;
+
+
+    // Calculate percentages
+    const calculatePercentage = (amount) => (amount / salary) * 100;
+    const percentages = {
+        foodDrinks: calculatePercentage(foodDrinksBudget),
+        entertainment: calculatePercentage(entertainmentBudget),
+        travel: calculatePercentage(travelBudget),
+        savings: calculatePercentage(savingsBudget),
+        payment: calculatePercentage(paymentTotal),
+        remaining: calculatePercentage(remaining)
+    };
+    const feedback = provideBudgetFeedback(percentages);
+    // Update HTML to display percentages
+    document.getElementById('foodDrinksPercentage').innerText = percentages.foodDrinks.toFixed(2) + '%';
+    document.getElementById('entertainmentPercentage').innerText = percentages.entertainment.toFixed(2) + '%';
+    document.getElementById('travelPercentage').innerText = percentages.travel.toFixed(2) + '%';
+    document.getElementById('savingsPercentage').innerText = percentages.savings.toFixed(2) + '%';
+    document.getElementById('remainingPercentage').innerText = percentages.remaining.toFixed(2) + '%';
+    document.getElementById('paymentPercentage').innerText = percentages.payment.toFixed(2) + '%';
+
+    // Chart setup
     const chart = new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: ['Food & Drinks', 'Entertainment', 'Travel', 'Savings', 'Remaining'],
+            labels: ['Food & Drinks', 'Entertainment', 'Travel', 'Savings', 'Remaining', 'Payment'],
             datasets: [{
                 label: 'Budget Allocation',
-                data: [
-                    data.food_drinks_budget,
-                    data.entertainment_budget,
-                    data.travel_budget,
-                    data.savings_budget,
-                    data.remaining // Calculate remaining amount
-                ],
+                data: [foodDrinksBudget, entertainmentBudget, travelBudget, savingsBudget, remaining, paymentTotal],
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)', // Example colors
+                    'rgba(255, 99, 132, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
                     'rgba(255, 206, 86, 0.2)',
                     'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)'
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(1, 1, 1, 0.5)'
                 ],
                 borderColor: [
                     'rgba(255, 99, 132, 1)',
                     'rgba(54, 162, 235, 1)',
                     'rgba(255, 206, 86, 1)',
                     'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)'
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(1, 1, 1, 1)'
+
                 ],
                 borderWidth: 1
             }]
@@ -337,6 +430,9 @@ function renderChart(data) {
             maintainAspectRatio: false,
         }
     });
+    document.getElementById('budgetPercentages').classList.remove('hidden');
+    document.getElementById('budgetFeedback').classList.remove('hidden')
+    document.getElementById('budgetFeedback').innerText = feedback;
 }
 
 async function loadChartData() {
@@ -348,8 +444,6 @@ async function loadChartData() {
         // Handle this situation appropriately
     }
 }
-
-loadChartData();
     </script>
     </main>
 

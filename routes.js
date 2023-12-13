@@ -14,7 +14,6 @@
 //       'query' is the new promisified sql query code
 const { db, query } = require('./db');
 const sessionMiddleware = require("./session");
-const mysql = require('mysql2/promise');
 
 //packages
 const path = require("path");
@@ -161,30 +160,44 @@ router.get("/account/getSums", async (req, res) => {
   }
 });
 
-router.get('/budgetData', async (req, res) => {
+router.get("/account/paymentTotal", async (req, res) => {
   try {
-      console.log("you are here");
-      const userId = req.session.userId;
-      const currentMonth = new Date().toISOString().slice(0, 7) + '-01';
-
-      const queryString = `
-          SELECT food_drinks_budget, entertainment_budget, travel_budget, savings_budget 
-          FROM budgets 
-          WHERE user_id = ? AND budget_month = ?
-      `;
-      const [rows, fields] = await query(queryString, [userId, currentMonth]);
-
-      if (rows.length > 0) {
-          res.json(rows[0]);
-          console.log(rows[0]);
-      } else {
-          res.status(404).send('Budget data not found for the current month.');
-      }
+    const test_param = req.session.userId;
+    const totalResult = await query(" SELECT SUM(amount) as total FROM transactions WHERE category='payment' and user_id =?", [test_param]);
+    console.log(typeof totalResult);
+    res.json(totalResult);
   } catch (error) {
-      console.error('Database error:', error);
-      res.status(500).send('Internal Server Error');
+    console.error("ERROR IN FETCHING TRANSACTIONS:", error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+router.get('/budgetData', async (req, res) => {
+  try {
+    console.log("you are here");
+    const userId = req.session.userId;
+    const currentMonth = new Date().toISOString().slice(0, 7) + '-01';
+
+    const queryString = `
+        SELECT food_drinks_budget, entertainment_budget, travel_budget, savings_budget 
+        FROM budgets 
+        WHERE user_id = ? AND budget_month = ?
+    `;
+    // Assuming 'query' is a function from your './db' that handles the promise-based querying
+    const pleaseWork = await query(queryString, [userId, currentMonth]);
+
+    if (pleaseWork.length > 0) {
+        res.json(pleaseWork[0]);
+        console.log(pleaseWork[0]);
+    } else {
+        res.status(404).send('Budget data not found for the current month.');
+    }
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 
 
 // ---------- handle POSTs
