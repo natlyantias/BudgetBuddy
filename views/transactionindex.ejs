@@ -161,6 +161,7 @@
 
         <section class="transaction-list">
             <h2 style="margin: 10px 10px">Recent Transactions</h2>
+            <h3 id="balanceAnchor">Balance:</h3>
             <div class="table-container">
                 <table id="transactionsTable">
                     <tr>
@@ -189,6 +190,27 @@
                     .catch(error => {
                         console.error("Could not fetch /account/displayTransactions", error);
                     });
+
+                    fetch('/account/displayBalance')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(` [displayBalance]: HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        populateBalance(data);
+                    })
+                    .catch(error => {
+                        console.error("Could not fetch /account/displayBalance", error);
+                    });
+
+                    function populateBalance(data) {
+                        var target_tag = document.querySelector('#balanceAnchor');
+
+                        var balanceValue = data[0].balance;
+                        target_tag.textContent = `Balance: $${balanceValue}`;
+                    }
 
                     function populateTable(data) {
                         var tableBody = document.querySelector('#transactionsTable tbody');

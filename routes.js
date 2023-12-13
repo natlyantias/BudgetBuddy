@@ -20,7 +20,7 @@ const path = require("path");
 const express = require("express");
 const moment = require('moment');
 const bcrypt = require("bcrypt");
-const mysql = require('mysql2/promise');
+// const mysql = require('mysql2/promise');
 // document root for web pages
 const page_dir = path.join(__dirname, "views");
 
@@ -62,7 +62,7 @@ const alreadyLoggedIn = (req, res, next) => {
 router.get("/account/displayTransactions", async (req, res) => {
   try {
     const user_id = req.session.userId;
-    console.log(user_id);
+    // console.log(user_id);
     // promisified queries seem to be needed for api routes
     const transactions_result = await query("SELECT amount, description, category, transaction_date FROM transactions WHERE user_id = ? ORDER BY transaction_date DESC", [user_id]);
     
@@ -82,6 +82,22 @@ router.get("/account/displayTransactions", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+router.get("/account/displayBalance", async (req, res) => {
+  try {
+    const user_id = req.session.userId;
+    // console.log(user_id);
+
+    const balance_result = await query("SELECT sum(amount) AS balance FROM transactions WHERE user_id = ?", [user_id]);
+    res.json(balance_result);
+    console.log(balance_result, "BAL");
+  } catch (error) {
+    console.error("ERROR IN FETCHING BALANCE:", error);
+    res.status(500).send("Internal Server Error");
+  }
+})
+
+
 // Function to find the nearest frequency
 function findNearest(values, targets) {
   return values.map(value => {
@@ -233,7 +249,7 @@ router.post("/login_request", async (req, res) => {
 
             req.session.username = username;
 
-            // TODO: fetch email from db to store in session
+            // Placeholder for email
             req.session.email = "email@domain.com";
 
             // TODO: Handle if this value actually passes
@@ -241,15 +257,17 @@ router.post("/login_request", async (req, res) => {
             req.session.userId = -1;
 
             db.query(
-              "SELECT user_id FROM users WHERE username = ?",
+              "SELECT user_id, email FROM users WHERE username = ?",
               [username],
-              (err, userId_result) => {
-                req.session.userId = userId_result[0].user_id;
+              (err, userData_result) => {
+                req.session.userId = userData_result[0].user_id;
+                req.session.email = userData_result[0].email;
                 console.log(req.session.userId);
 
                 console.log(req.session);
-                console.log("Username is", req.session.username);
-                console.log("User id is", req.session.userId);
+                // console.log("Username is", req.session.username);
+                // console.log("User id is", req.session.userId);
+                // console.log("Email is", req.session.email);
 
                 res.redirect("/settings");
               }
