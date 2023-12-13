@@ -21,7 +21,7 @@ const path = require("path");
 const express = require("express");
 const moment = require('moment');
 const bcrypt = require("bcrypt");
-const mysql = require('mysql2/promise');
+// const mysql = require('mysql2/promise');
 // document root for web pages
 const page_dir = path.join(__dirname, "views");
 
@@ -63,7 +63,7 @@ const alreadyLoggedIn = (req, res, next) => {
 router.get("/account/displayTransactions", async (req, res) => {
   try {
     const user_id = req.session.userId;
-    console.log(user_id);
+    // console.log(user_id);
     // promisified queries seem to be needed for api routes
     const transactions_result = await query("SELECT amount, description, category, transaction_date FROM transactions WHERE user_id = ? ORDER BY transaction_date DESC", [user_id]);
     
@@ -83,6 +83,22 @@ router.get("/account/displayTransactions", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+router.get("/account/displayBalance", async (req, res) => {
+  try {
+    const user_id = req.session.userId;
+    // console.log(user_id);
+
+    const balance_result = await query("SELECT sum(amount) AS balance FROM transactions WHERE user_id = ?", [user_id]);
+    res.json(balance_result);
+    console.log(balance_result, "BAL");
+  } catch (error) {
+    console.error("ERROR IN FETCHING BALANCE:", error);
+    res.status(500).send("Internal Server Error");
+  }
+})
+
+
 // Function to find the nearest frequency
 function findNearest(values, targets) {
   return values.map(value => {
