@@ -31,7 +31,6 @@ const sessionMiddleware = require("./session");
 
 // serve /public folder
 app.use(express.static("public"));
-
 // parse JSON and urlencoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -116,6 +115,7 @@ app.post("/api/exchange_public_token", async (req, res, next) => {
 
   res.json(true);
 });
+
 
 // Fetches balance data using the Node client library for Plaid
 app.get("/api/data", (req, res, next) => {
@@ -258,6 +258,58 @@ app.get("/api/is_account_connected", async (req, res, next) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+app.post('/budget', (req, res) => {
+  console.log("Received request body:", req.body);
+
+  // Directly extract the properties from req.body
+  const {
+      food_drinks_budget, 
+      entertainment_budget, 
+      travel_budget, 
+      savings_budget, 
+      budget_month
+  } = req.body;
+
+  console.log("Extracted budgetMonth:", budget_month);
+
+  const userId = req.session.userId;
+  console.log("Extracted userId from session:", userId);
+
+  // Construct the budget object
+  const budget = {
+      food_drinks_budget, 
+      entertainment_budget, 
+      travel_budget, 
+      savings_budget
+  };
+
+  const columns = Object.keys(budget).filter(key => budget[key] !== null);
+  const values = columns.map(key => budget[key]);
+
+  console.log("Columns to be inserted:", columns);
+  console.log("Values to be inserted:", values);
+
+  if (columns.length === 0) {
+      return res.status(400).send('No valid budget data provided.');
+  }
+
+  let query = `INSERT INTO budgets (user_id, ${columns.join(", ")}, budget_month) 
+               VALUES (${new Array(columns.length + 2).fill('?').join(', ')}) 
+               ON DUPLICATE KEY UPDATE `;
+  query += columns.map(key => `${key} = VALUES(${key})`).join(", ");
+
+  db.query(query, [userId, ...values, budget_month], (error, results) => {
+      if (error) {
+          console.error('Database error:', error);
+          res.status(500).send('An error occurred while saving the budget.');
+      } else {
+          res.send('Budget saved successfully.');
+      }
+  });
+});
+
+
 
 // ---------- INITIALIZE WEB SERVER
 app.listen(port, (error) => {

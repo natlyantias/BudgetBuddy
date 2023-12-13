@@ -20,7 +20,7 @@ const path = require("path");
 const express = require("express");
 const moment = require('moment');
 const bcrypt = require("bcrypt");
-const mysql = require('mysql2/promise');
+// const mysql = require('mysql2/promise');
 // document root for web pages
 const page_dir = path.join(__dirname, "views");
 
@@ -53,14 +53,16 @@ const alreadyLoggedIn = (req, res, next) => {
   } else {
     res.redirect("/settings");
   }
-}
+};
+
+
 
 // ----- Our own server API
 
 router.get("/account/displayTransactions", async (req, res) => {
   try {
     const user_id = req.session.userId;
-    console.log(user_id);
+    // console.log(user_id);
     // promisified queries seem to be needed for api routes
     const transactions_result = await query("SELECT amount, description, category, transaction_date FROM transactions WHERE user_id = ? ORDER BY transaction_date DESC", [user_id]);
     
@@ -80,6 +82,138 @@ router.get("/account/displayTransactions", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+router.get("/account/displayBalance", async (req, res) => {
+  try {
+    const user_id = req.session.userId;
+    // console.log(user_id);
+
+    const balance_result = await query("SELECT sum(amount) AS balance FROM transactions WHERE user_id = ?", [user_id]);
+    res.json(balance_result);
+    console.log(balance_result, "BAL");
+  } catch (error) {
+    console.error("ERROR IN FETCHING BALANCE:", error);
+    res.status(500).send("Internal Server Error");
+  }
+})
+
+
+// Function to find the nearest frequency
+function findNearest(values, targets) {
+  return values.map(value => {
+      return targets.reduce((prev, curr) => 
+          (Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev));
+  });
+}
+
+// Function to categorize pay frequency
+function categorizePayFrequency(daysBetween) {
+  const targets = [7, 14, 30];
+  let categorized = findNearest(daysBetween, targets);
+  let frequencyCounts = categorized.reduce((acc, curr) => {
+      acc[curr] = (acc[curr] || 0) + 1;
+      return acc;
+  }, {});
+
+  let mostFrequent = Object.keys(frequencyCounts).reduce((a, b) => 
+      frequencyCounts[a] > frequencyCounts[b] ? a : b);
+
+  return parseInt(mostFrequent);
+}
+
+// Function to estimate monthly salary
+function estimateMonthlySalary(transactions) {
+  if (!transactions || transactions.length === 0) {
+      console.log("No transactions found");
+      return 0;
+  }
+
+  let daysBetween = transactions.map(t => t.days_between).filter(Boolean);
+  let payFrequency = categorizePayFrequency(daysBetween);
+
+  let totalIncome = transactions.reduce((sum, record) => {
+      let amount = parseFloat(record.amount); // Ensure amount is a number
+      return sum + (isNaN(amount) ? 0 : amount);
+  }, 0);
+
+  let averageIncome = totalIncome / transactions.length;
+
+  console.log("Total Income:", totalIncome, "Transactions Count:", transactions.length);
+
+  switch (payFrequency) {
+      case 7: // Weekly
+          return averageIncome * 4;
+      case 14: // Bi-Weekly
+          return averageIncome * 2;
+      case 30: // Monthly
+          return averageIncome;
+      default:
+          console.log("Undefined pay frequency:", payFrequency);
+          return 0; // Undefined frequency
+  }
+}
+router.get("/account/getDays", async (req, res) => {
+  try {
+    const test_param = req.session.userId;
+    const transactions = await query("SELECT transaction_id, amount, transaction_date, DATEDIFF(transaction_date, LAG(transaction_date, 1) OVER (ORDER BY transaction_date)) AS days_between FROM transactions WHERE category = 'Transfer' AND description LIKE '%Salary%' AND user_id = ? ORDER BY transaction_date;", [test_param]);
+    const monthlySalary = estimateMonthlySalary(transactions);
+    console.log(monthlySalary);
+    res.json({ transactions, monthlySalary });
+  } catch (error) {
+    console.error("ERROR IN FETCHING TRANSACTIONS:", error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+router.get("/account/getSums", async (req, res) => {
+  try {
+    const test_param = req.session.userId;
+    console.log(test_param);
+    const pleaseWork = await query("select category, sum(amount) as total_amount from transactions where user_id= ? group by category;", [test_param]);
+    res.json(pleaseWork);
+  } catch (error) {
+    console.error("ERROR IN FETCHING TRANSACTIONS:", error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+router.get("/account/paymentTotal", async (req, res) => {
+  try {
+    const test_param = req.session.userId;
+    const totalResult = await query(" SELECT SUM(amount) as total FROM transactions WHERE category='payment' and user_id =?", [test_param]);
+    console.log(typeof totalResult);
+    res.json(totalResult);
+  } catch (error) {
+    console.error("ERROR IN FETCHING TRANSACTIONS:", error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+router.get('/budgetData', async (req, res) => {
+  try {
+    console.log("you are here");
+    const userId = req.session.userId;
+    const currentMonth = new Date().toISOString().slice(0, 7) + '-01';
+
+    const queryString = `
+        SELECT food_drinks_budget, entertainment_budget, travel_budget, savings_budget 
+        FROM budgets 
+        WHERE user_id = ? AND budget_month = ?
+    `;
+    // Assuming 'query' is a function from your './db' that handles the promise-based querying
+    const pleaseWork = await query(queryString, [userId, currentMonth]);
+
+    if (pleaseWork.length > 0) {
+        res.json(pleaseWork[0]);
+        console.log(pleaseWork[0]);
+    } else {
+        res.status(404).send('Budget data not found for the current month.');
+    }
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 
 
 // ---------- handle POSTs
@@ -115,7 +249,7 @@ router.post("/login_request", async (req, res) => {
 
             req.session.username = username;
 
-            // TODO: fetch email from db to store in session
+            // Placeholder for email
             req.session.email = "email@domain.com";
 
             // TODO: Handle if this value actually passes
@@ -123,15 +257,17 @@ router.post("/login_request", async (req, res) => {
             req.session.userId = -1;
 
             db.query(
-              "SELECT user_id FROM users WHERE username = ?",
+              "SELECT user_id, email FROM users WHERE username = ?",
               [username],
-              (err, userId_result) => {
-                req.session.userId = userId_result[0].user_id;
+              (err, userData_result) => {
+                req.session.userId = userData_result[0].user_id;
+                req.session.email = userData_result[0].email;
                 console.log(req.session.userId);
 
                 console.log(req.session);
-                console.log("Username is", req.session.username);
-                console.log("User id is", req.session.userId);
+                // console.log("Username is", req.session.username);
+                // console.log("User id is", req.session.userId);
+                // console.log("Email is", req.session.email);
 
                 res.redirect("/settings");
               }
